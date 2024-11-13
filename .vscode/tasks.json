@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Compilar C++ com g++",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "-Wall",
+        "-Iinclude",
+        "-g",
+        "src/*.cpp",
+        "-o",
+        "main.exe",
+        "-Llib",
+        "-lopengl32",
+        "-lglu32",
+        "-lfreeglut"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "detail": "Tarefa para compilar o código C++ com g++"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "sourceFile",
+      "type": "promptString",
+      "description": "Digite o nome do arquivo-fonte principal (ex: main.cpp)",
+      "default": "src/main.cpp"
+    }
+  ]
+}
