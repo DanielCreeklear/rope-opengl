@@ -3,9 +3,15 @@
 #include "Axes.h"
 #include "Camera.h"
 #include "Light.h"
+#include "AnimatedFigure.h"
+#include "Simple3DCharacter.h"
+#include <GL/freeglut_ext.h>
 
 Camera camera;
 Light light;
+Simple3DCharacter character(1.0f, 3.0f, 1.0f, 5.0f, 0.3f);
+
+float time = 0.0f;
 
 void init()
 {
@@ -26,12 +32,15 @@ void display()
     light.applyLighting();
 
     drawAxes();
+    character.draw();
 
     glutSwapBuffers();
 }
 
 void update(int value)
 {
+    time += 0.05f;
+    character.update(time);
     glutPostRedisplay();
     glutTimerFunc(16, update, 0);
 }
@@ -84,6 +93,9 @@ int main(int argc, char **argv)
     glutPassiveMotionFunc(mouseMotion);
     glutMouseFunc(mouseButton);
     glutKeyboardFunc(keyboard);
+
+    glutMouseWheelFunc([](int button, int direction, int x, int y)
+                       { camera.mouseWheel(button, direction, x, y); });
 
     glutDisplayFunc(display);
     glutTimerFunc(16, update, 0);

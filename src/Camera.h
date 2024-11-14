@@ -11,6 +11,7 @@ public:
     void applyViewTransform();
     void mouseMotion(int x, int y);
     void mouseButton(int button, int state, int x, int y);
+    void mouseWheel(int button, int direction, int x, int y);
     void setup();
     void moveForward(float distance);
     void moveBackward(float distance);

@@ -72,6 +72,27 @@ void Camera::mouseButton(int button, int state, int x, int y)
     }
 }
 
+void Camera::mouseWheel(int button, int direction, int x, int y)
+{
+    if (direction > 0)
+    {
+        posZ -= 0.5f;
+    }
+    else if (direction < 0)
+    {
+        posZ += 0.5f;
+    }
+
+    if (posZ < 2.0f)
+    {
+        posZ = 2.0f;
+    }
+    if (posZ > 20.0f)
+    {
+        posZ = 20.0f;
+    }
+}
+
 void Camera::moveForward(float distance)
 {
     float radYaw = yaw * M_PI / 180.0f;
