@@ -13,21 +13,34 @@ public:
 
 private:
     float scale;
-    float armRotationAngle;
-    float legRotationAngle;
+    float armRightRotationAngle;
+    float armLeftRotationAngle;
+    float directionRightArmRotation;
+    float directionLeftArmRotation;
+
+    float legLeftRotationAngle;
+    float legRightRotationAngle;
+    float directionLeftLegRotation;
+    float directionRightLegRotation;
+
     float headRotationAngle;
+    float directionHeadRotation;
 
     float torsoHeight;
     float headRadius;
     float limbLength;
     float limbWidth;
 
+    void drawLeftArm() const;
+    void drawRightArm() const;
+    void drawLeftLeg() const;
+    void drawRightLeg() const;
     void drawTorso() const;
     void drawHead() const;
     void drawLimbsWithDetails() const;
     void drawLimb(float length, float width, float xOffset, float yOffset, float zOffset, float rotationAngle) const;
     void drawAdditionalComponents() const;
-    void rotateWithLimits(float &angle, float &speed, float minAngle, float maxAngle, float deltaTime);
+    void rotateWithLimits(float &angle, float speed, float &direction, float minAngle, float maxAngle, float deltaTime);
 };
 
 #endif

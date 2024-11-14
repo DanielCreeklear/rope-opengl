@@ -4,7 +4,8 @@
 
 Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth)
     : scale(scale), torsoHeight(torsoHeight), headRadius(headRadius), limbLength(limbLength), limbWidth(limbWidth),
-      armRotationAngle(0.0f), legRotationAngle(0.0f), headRotationAngle(0.0f) {}
+      armLeftRotationAngle(0.0f), armRightRotationAngle(0.0f), legLeftRotationAngle(0.0f), legRightRotationAngle(0.0f), headRotationAngle(0.0f),
+      directionRightArmRotation(1.0f), directionLeftArmRotation(-1.0f), directionLeftLegRotation(1.0f), directionRightLegRotation(-1.0f), directionHeadRotation(1.0f) {}
 
 void Simple3DCharacter::draw() const
 {
@@ -44,18 +45,54 @@ void Simple3DCharacter::drawLimbsWithDetails() const
 {
     glPushMatrix();
 
-    glPushMatrix();
-    glRotatef(armRotationAngle, 0.0f, 1.0f, 0.0f);
-    drawLimb(limbLength, limbWidth, scale * 2.0f / 2.0f + 1.0f, scale * 1.0f + limbLength / 2.0f, 0.0f, 90.0f);
-    drawLimb(limbLength, limbWidth, -(scale * 2.0f / 2.0f + 1.0f), scale * 1.0f + limbLength / 2.0f, 0.0f, 90.0f);
+    drawLeftArm();
+    drawRightArm();
+
+    drawLeftLeg();
+    drawRightLeg();
+
     glPopMatrix();
+}
+
+void Simple3DCharacter::drawLeftArm() const
+{
+    float xOffset = scale * 2.0f / 2.0f + 1.0f;
+    float yOffset = scale * 1.0f + limbLength / 2.0f - 0.2f * limbLength;
 
     glPushMatrix();
-    glRotatef(legRotationAngle, 0.0f, 1.0f, 0.0f);
+    glTranslatef(0.0f, (limbLength / 2.0f), 0.0f);
+    glRotatef(armLeftRotationAngle, 1.0f, 0.0f, 0.0f);
+    glTranslatef(0.0f, -(limbLength / 2.0f), 0.0f);
+    drawLimb(limbLength, limbWidth, xOffset, yOffset, 0.0f, 90.0f);
+    glPopMatrix();
+}
+
+void Simple3DCharacter::drawRightArm() const
+{
+    float xOffset = -(scale * 2.0f / 2.0f + 1.0f);
+    float yOffset = scale * 1.0f + limbLength / 2.0f - 0.2f * limbLength;
+
+    glPushMatrix();
+    glTranslatef(0.0f, (limbLength / 2.0f), 0.0f);
+    glRotatef(armRightRotationAngle, 1.0f, 0.0f, 0.0f);
+    glTranslatef(0.0f, -(limbLength / 2.0f), 0.0f);
+    drawLimb(limbLength, limbWidth, xOffset, yOffset, 0.0f, 90.0f);
+    glPopMatrix();
+}
+
+void Simple3DCharacter::drawLeftLeg() const
+{
+    glPushMatrix();
+    glRotatef(legLeftRotationAngle, 1.0f, 0.0f, 0.0f);
     drawLimb(limbLength, limbWidth, scale * 2.0f / 2.0f, -(scale * 1.0f + limbLength / 2.0f), 0.0f, -90.0f);
-    drawLimb(limbLength, limbWidth, -scale * 2.0f / 2.0f, -(scale * 1.0f + limbLength / 2.0f), 0.0f, -90.0f);
     glPopMatrix();
+}
 
+void Simple3DCharacter::drawRightLeg() const
+{
+    glPushMatrix();
+    glRotatef(legRightRotationAngle, 1.0f, 0.0f, 0.0f);
+    drawLimb(limbLength, limbWidth, -scale * 2.0f / 2.0f, -(scale * 1.0f + limbLength / 2.0f), 0.0f, -90.0f);
     glPopMatrix();
 }
 
@@ -80,30 +117,27 @@ void Simple3DCharacter::drawAdditionalComponents() const
     glPopMatrix();
 }
 
-void Simple3DCharacter::rotateWithLimits(float &angle, float &speed, float minAngle, float maxAngle, float deltaTime)
+void Simple3DCharacter::rotateWithLimits(float &angle, float speed, float &direction, float minAngle, float maxAngle, float deltaTime)
 {
-    // Atualiza o ângulo com base na velocidade e no tempo
-    angle += speed * deltaTime;
-
-    // Checa se o ângulo ultrapassou o limite superior
     if (angle > maxAngle)
     {
         angle = maxAngle;
-        speed = -fabs(speed);
+        direction = -1.0f;
     }
-    // Checa se o ângulo ultrapassou o limite inferior
     else if (angle < minAngle)
     {
         angle = minAngle;
-        speed = fabs(speed);
+        direction = 1.0f;
     }
+
+    angle += speed * direction;
 }
 
 void Simple3DCharacter::update(float deltaTime)
 {
     // Velocidade de rotação (ajustar conforme necessário)
-    float armSpeed = 10.0f;
-    float legSpeed = 5.0f;
+    float armSpeed = 1.0f;
+    float legSpeed = 1.0f;
     float headSpeed = 2.0f;
 
     // Limites para as rotações
@@ -115,7 +149,9 @@ void Simple3DCharacter::update(float deltaTime)
     float headMinAngle = -30.0f;
 
     // Atualiza os ângulos de rotação com limites
-    rotateWithLimits(armRotationAngle, armSpeed, armMinAngle, armMaxAngle, deltaTime);
-    rotateWithLimits(legRotationAngle, legSpeed, legMinAngle, legMaxAngle, deltaTime);
-    rotateWithLimits(headRotationAngle, headSpeed, headMinAngle, headMaxAngle, deltaTime);
+    rotateWithLimits(armLeftRotationAngle, armSpeed, directionLeftArmRotation, armMinAngle, armMaxAngle, deltaTime);
+    rotateWithLimits(armRightRotationAngle, armSpeed, directionRightArmRotation, armMinAngle, armMaxAngle, deltaTime);
+    rotateWithLimits(legLeftRotationAngle, legSpeed, directionLeftLegRotation, legMinAngle, legMaxAngle, deltaTime);
+    rotateWithLimits(legRightRotationAngle, legSpeed, directionRightLegRotation, legMinAngle, legMaxAngle, deltaTime);
+    rotateWithLimits(headRotationAngle, headSpeed, directionHeadRotation, headMinAngle, headMaxAngle, deltaTime);
 }
