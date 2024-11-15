@@ -5,8 +5,8 @@
 Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth)
     : scale(scale), torsoHeight(torsoHeight), headRadius(headRadius), limbLength(limbLength), limbWidth(limbWidth),
       armLeftRotationAngle(0.0f), armRightRotationAngle(0.0f), legLeftRotationAngle(0.0f), legRightRotationAngle(0.0f),
-      headRotationAngle(0.0f), directionRightArmRotation(1.0f), directionLeftArmRotation(-1.0f), directionLeftLegRotation(1.0f),
-      directionRightLegRotation(-1.0f), directionHeadRotation(1.0f), isWalking(true) {}
+      torsoRotationAngle(0.0f), headRotationAngle(0.0f), directionRightArmRotation(1.0f), directionLeftArmRotation(-1.0f), directionLeftLegRotation(1.0f),
+      directionRightLegRotation(-1.0f), directionHeadRotation(1.0f), directionTorsoRotation(1.0f), isWalking(false) {}
 
 void Simple3DCharacter::draw() const
 {
@@ -37,6 +37,7 @@ void Simple3DCharacter::drawTorso() const
 {
     glPushMatrix();
     glTranslatef(0.0f, torsoHeight / 2.0f, 0.0f);
+    glRotatef(torsoRotationAngle, 0.0f, 1.0f, 0.0f);
     glColor3f(0.5f, 0.5f, 0.5f);
     glutSolidCube(torsoHeight);
     glPopMatrix();
@@ -165,10 +166,32 @@ void Simple3DCharacter::walkAnimation(float deltaTime)
     rotateWithLimits(headRotationAngle, headSpeed, directionHeadRotation, headMinAngle, headMaxAngle, deltaTime);
 }
 
+void Simple3DCharacter::idleAnimation(float deltaTime)
+{
+    float torsoOscillationSpeed = 0.08f;
+    float torsoMaxAngle = 3.0f;
+    float torsoMinAngle = -3.0f;
+    rotateWithLimits(torsoRotationAngle, torsoOscillationSpeed, directionTorsoRotation, torsoMinAngle, torsoMaxAngle, deltaTime);
+
+    float headOscillationSpeed = 0.1f;
+    float headMaxAngle = 5.0f;
+    float headMinAngle = -5.0f;
+    rotateWithLimits(headRotationAngle, headOscillationSpeed, directionHeadRotation, headMinAngle, headMaxAngle, deltaTime);
+
+    float armOscillationSpeed = 0.2f;
+    float armMaxAngle = 5.0f;
+    float armMinAngle = -5.0f;
+    rotateWithLimits(armLeftRotationAngle, armOscillationSpeed, directionLeftArmRotation, armMinAngle, armMaxAngle, deltaTime);
+    rotateWithLimits(armRightRotationAngle, armOscillationSpeed, directionRightArmRotation, armMinAngle, armMaxAngle, deltaTime);
+}
+
 void Simple3DCharacter::update(float deltaTime)
 {
     if (isWalking)
     {
         walkAnimation(deltaTime);
+        return;
     }
+
+    idleAnimation(deltaTime);
 }

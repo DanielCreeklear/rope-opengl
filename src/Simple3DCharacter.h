@@ -20,11 +20,13 @@ private:
     float armLeftRotationAngle;
     float directionRightArmRotation;
     float directionLeftArmRotation;
+    float directionTorsoRotation;
 
     float legLeftRotationAngle;
     float legRightRotationAngle;
     float directionLeftLegRotation;
     float directionRightLegRotation;
+    float torsoRotationAngle;
 
     float headRotationAngle;
     float directionHeadRotation;
@@ -49,6 +51,7 @@ private:
     void rotateWithLimits(float &angle, float speed, float &direction, float minAngle, float maxAngle, float deltaTime);
 
     void walkAnimation(float deltaTime);
+    void idleAnimation(float deltaTime);
 };
 
 #endif
