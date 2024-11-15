@@ -11,7 +11,10 @@ public:
     void draw() const;
     void update(float deltaTime);
 
-private:
+    void startWalking();
+    void stopWalking();
+
+private: 
     float scale;
     float armRightRotationAngle;
     float armLeftRotationAngle;
@@ -31,6 +34,8 @@ private:
     float limbLength;
     float limbWidth;
 
+    bool isWalking;
+
     void drawLeftArm() const;
     void drawRightArm() const;
     void drawLeftLeg() const;
@@ -40,7 +45,10 @@ private:
     void drawLimbsWithDetails() const;
     void drawLimb(float length, float width, float xOffset, float yOffset, float zOffset, float rotationAngle) const;
     void drawAdditionalComponents() const;
+
     void rotateWithLimits(float &angle, float speed, float &direction, float minAngle, float maxAngle, float deltaTime);
+
+    void walkAnimation(float deltaTime);
 };
 
 #endif
