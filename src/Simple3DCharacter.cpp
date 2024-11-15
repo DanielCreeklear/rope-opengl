@@ -238,7 +238,6 @@ void Simple3DCharacter::update(float deltaTime)
     idleAnimation(deltaTime);
 }
 
-
 float Simple3DCharacter::getPosX()
 {
     return posX;
@@ -252,4 +251,11 @@ float Simple3DCharacter::getPosY()
 float Simple3DCharacter::getPosZ()
 {
     return posZ;
+}
+
+float Simple3DCharacter::getFootHeight() const
+{
+    float footHeight = (torsoHeight / 2.0f) - limbLength - 0.5f;
+
+    return footHeight;
 }

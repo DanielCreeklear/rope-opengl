@@ -1,11 +1,12 @@
 #include <GL/glut.h>
+#include <GL/freeglut_ext.h>
 #include <cmath>
 #include "Axes.h"
 #include "Camera.h"
 #include "Light.h"
 #include "AnimatedFigure.h"
 #include "Simple3DCharacter.h"
-#include <GL/freeglut_ext.h>
+#include "Terrain.h"
 
 Camera camera;
 Light light;
@@ -16,6 +17,15 @@ float time = 0.0f;
 const float cameraOffsetX = 0.0f;
 const float cameraOffsetY = 1.0f;
 const float cameraOffsetZ = 50.0f;
+
+void createTerrain(float height)
+{
+    glPushMatrix();
+    glTranslatef(-5.0f, 0.0f, 0.0f);
+    Terrain terrain(1.0f, 20, 20, height);
+    terrain.draw();
+    glPopMatrix();
+}
 
 void init()
 {
@@ -39,6 +49,7 @@ void display()
     camera.applyViewTransform();
     light.applyLighting();
 
+    createTerrain(character.getFootHeight());
     drawAxes();
     character.draw();
 

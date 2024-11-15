@@ -20,6 +20,7 @@ public:
     float getPosX();
     float getPosY();
     float getPosZ();
+    float getFootHeight() const;
 
 private: 
     float scale;
