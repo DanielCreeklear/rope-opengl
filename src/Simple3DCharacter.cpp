@@ -135,12 +135,10 @@ void Simple3DCharacter::rotateWithLimits(float &angle, float speed, float &direc
 
 void Simple3DCharacter::update(float deltaTime)
 {
-    // Velocidade de rotação (ajustar conforme necessário)
     float armSpeed = 1.0f;
     float legSpeed = 1.0f;
     float headSpeed = 2.0f;
 
-    // Limites para as rotações
     float armMaxAngle = 45.0f;
     float armMinAngle = -45.0f;
     float legMaxAngle = 30.0f;
@@ -148,7 +146,6 @@ void Simple3DCharacter::update(float deltaTime)
     float headMaxAngle = 30.0f;
     float headMinAngle = -30.0f;
 
-    // Atualiza os ângulos de rotação com limites
     rotateWithLimits(armLeftRotationAngle, armSpeed, directionLeftArmRotation, armMinAngle, armMaxAngle, deltaTime);
     rotateWithLimits(armRightRotationAngle, armSpeed, directionRightArmRotation, armMinAngle, armMaxAngle, deltaTime);
     rotateWithLimits(legLeftRotationAngle, legSpeed, directionLeftLegRotation, legMinAngle, legMaxAngle, deltaTime);
