@@ -15,13 +15,13 @@ Simple3DCharacter character(1.0f, 3.0f, 1.0f, 5.0f, 0.3f);
 float time = 0.0f;
 
 const float cameraOffsetX = 0.0f;
-const float cameraOffsetY = 1.0f;
-const float cameraOffsetZ = 50.0f;
+const float cameraOffsetY = 10.0f;
+const float cameraOffsetZ = 30.0f;
 
 void createTerrain(float height)
 {
     glPushMatrix();
-    glTranslatef(-5.0f, 0.0f, 0.0f);
+    glTranslatef(-5.0f, 0.0f, -10.0f);
     Terrain terrain(1.0f, 20, 20, height);
     terrain.draw();
     glPopMatrix();
@@ -34,7 +34,7 @@ void init()
 
     light.initialize();
     camera.setup();
-    camera.setPosition(0.0f, 0.0f, 5.0f);
+    // camera.setPosition(0.0f, 0.0f, 5.0f);
 }
 
 void display()
@@ -42,11 +42,7 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    camera.setPosition(character.getPosX() + cameraOffsetX,
-                       character.getPosY() + cameraOffsetY,
-                       character.getPosZ() + cameraOffsetZ);
-
-    camera.applyViewTransform();
+    camera.applyViewTransform(character.getPosX(), character.getPosY(), character.getPosZ());
     light.applyLighting();
 
     createTerrain(character.getFootHeight());

@@ -1,10 +1,8 @@
 #include "Camera.h"
 #include <GL/glut.h>
-#include <cmath>
 
 Camera::Camera()
-    : posX(0.0f), posY(0.0f), posZ(5.0f), isLeftButtonPressed(false),
-      yaw(0.0f), pitch(0.0f), lastX(400.0f), lastY(300.0f), sensitivity(0.5f), mouseRotation(true), cameraOffsetX(0.0f), cameraOffsetY(2.0f), cameraOffsetZ(10.0f) {}
+    : cameraOffsetX(0.0f), cameraOffsetY(10.0f), cameraOffsetZ(30.0f), mouseRotation(false) {}
 
 void Camera::setup()
 {
@@ -22,126 +20,43 @@ void Camera::setPosition(float x, float y, float z)
     posZ = z;
 }
 
-void Camera::applyViewTransform()
+void Camera::applyViewTransform(float characterX, float characterY, float characterZ)
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    if (mouseRotation)
-    {
-        float radius = cameraOffsetZ;
-        float radYaw = yaw * M_PI / 180.0f;
-        float radPitch = pitch * M_PI / 180.0f;
+    float targetPosX = characterX + cameraOffsetZ * cos(yaw);
+    float targetPosY = characterY + cameraOffsetY;
+    float targetPosZ = characterZ + cameraOffsetZ * sin(yaw);
 
-        posX = radius * cos(radPitch) * sin(radYaw) + cameraOffsetX;
-        posY = radius * sin(radPitch) + cameraOffsetY;
-        posZ = radius * cos(radPitch) * cos(radYaw);
+    posX += (targetPosX - posX) * 0.1f;
+    posY += (targetPosY - posY) * 0.1f;
+    posZ += (targetPosZ - posZ) * 0.1f;
 
-        mouseRotation = false;
-    }
-
-    // Coloca a câmera olhando para o personagem (posição 0, 0, 0)
-    gluLookAt(posX, posY, posZ, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    gluLookAt(posX, posY, posZ, characterX, characterY, characterZ, 0.0f, 1.0f, 0.0f);
 }
 
 void Camera::mouseMotion(int x, int y)
 {
-    if (isLeftButtonPressed)
+    if (mouseRotation) // Só gira se o botão esquerdo estiver pressionado
     {
-        mouseRotation = true;
-        float deltaX = x - lastX;
-        float deltaY = y - lastY;
+        int centerX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+        int deltaX = x - centerX;
 
-        yaw += deltaX * -sensitivity;
-        pitch -= deltaY * -sensitivity;
+        float sensitivity = 0.005f;
 
-        if (pitch > 89.0f)
-            pitch = 89.0f;
-        if (pitch < -89.0f)
-            pitch = -89.0f;
+        yaw += deltaX * sensitivity;
+
+        glutWarpPointer(centerX, glutGet(GLUT_WINDOW_HEIGHT) / 2);
     }
-
-    lastX = x;
-    lastY = y;
 }
 
 void Camera::mouseButton(int button, int state, int x, int y)
 {
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
-        isLeftButtonPressed = !isLeftButtonPressed;
+        mouseRotation = !mouseRotation;
     }
 }
 
-void Camera::mouseWheel(int button, int direction, int x, int y)
-{
-    if (direction > 0)
-    {
-        cameraOffsetZ -= 0.5f;
-    }
-    else if (direction < 0)
-    {
-        cameraOffsetZ += 0.5f;
-    }
-
-    if (cameraOffsetZ < 2.0f)
-    {
-        cameraOffsetZ = 2.0f;
-    }
-    if (cameraOffsetZ > 20.0f)
-    {
-        cameraOffsetZ = 20.0f;
-    }
-}
-
-void Camera::moveForward(float distance)
-{
-    float radYaw = yaw * M_PI / 180.0f;
-    float radPitch = pitch * M_PI / 180.0f;
-
-    posX += distance * cos(radPitch) * sin(radYaw);
-    posY += distance * sin(radPitch);
-    posZ += distance * cos(radPitch) * cos(radYaw);
-}
-
-void Camera::moveBackward(float distance)
-{
-    moveForward(-distance);
-}
-
-void Camera::moveLeft(float distance)
-{
-    float radYaw = (yaw + 90.0f) * M_PI / 180.0f;
-    posX += distance * sin(radYaw);
-    posZ += distance * cos(radYaw);
-}
-
-void Camera::moveRight(float distance)
-{
-    moveLeft(-distance);
-}
-
-float Camera::getPosX()
-{
-    return posX;
-}
-
-float Camera::getPosY()
-{
-    return posY;
-}
-
-float Camera::getPosZ()
-{
-    return posZ;
-}
-
-float Camera::getYaw()
-{
-    return yaw;
-}
-
-float Camera::getPitch()
-{
-    return pitch;
-}
+void Camera::mouseWheel(int button, int direction, int x, int y) {}

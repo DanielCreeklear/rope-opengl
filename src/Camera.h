@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include <GL/glut.h>
+#include <cmath>
 
 class Camera
 {
@@ -9,7 +10,7 @@ public:
     Camera();
     void setup();
     void setPosition(float x, float y, float z);
-    void applyViewTransform();
+    void applyViewTransform(float characterX, float characterY, float characterZ);
 
     void mouseMotion(int x, int y);
     void mouseButton(int button, int state, int x, int y);
