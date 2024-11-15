@@ -10,10 +10,10 @@ public:
     Terrain(float blockSize, int width, int depth, float height);
     void draw() const;
     void setHeight(float height);
+    
 
 private: 
-    float blockSize,
-    groundHeight;
+    float blockSize, groundHeight;
     int width, depth;
     std::vector<Block> blocks;
 

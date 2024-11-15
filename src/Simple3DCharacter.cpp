@@ -7,13 +7,14 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
       armLeftRotationAngle(0.0f), armRightRotationAngle(0.0f), legLeftRotationAngle(0.0f), legRightRotationAngle(0.0f),
       torsoRotationAngle(0.0f), headRotationAngle(0.0f), directionRightArmRotation(1.0f), directionLeftArmRotation(-1.0f), directionLeftLegRotation(1.0f),
       directionRightLegRotation(-1.0f), directionHeadRotation(1.0f), directionTorsoRotation(1.0f), isWalking(false),
-      moveForward(false), moveBackward(false), moveLeft(false), moveRight(false), posX(0.0f), posY(0.0f), posZ(0.0f) {}
+      moveForward(false), moveBackward(false), moveLeft(false), moveRight(false), posX(0.0f), posY(0.0f), posZ(0.0f), rotationAngleCharacter(0.0f) {}
 
 void Simple3DCharacter::draw() const
 {
     glPushMatrix();
 
     glTranslatef(posX, posY, posZ);
+    glRotatef(rotationAngleCharacter, 0.0f, 1.0f, 0.0f);
     drawTorso();
     drawHead();
     drawLimbsWithDetails();
@@ -197,21 +198,28 @@ void Simple3DCharacter::move(float deltaTime)
     if (moveForward)
     {
         posZ -= moveSpeed;
+        rotationAngleCharacter = 0.0f;
         isMoving = true;
     }
+
     if (moveBackward)
     {
         posZ += moveSpeed;
+        rotationAngleCharacter = 0.0f;
         isMoving = true;
     }
+
     if (moveLeft)
     {
         posX -= moveSpeed;
+        rotationAngleCharacter = 90.0f;
         isMoving = true;
     }
+
     if (moveRight)
     {
         posX += moveSpeed;
+        rotationAngleCharacter = -90.0f;
         isMoving = true;
     }
 

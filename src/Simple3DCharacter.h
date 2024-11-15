@@ -24,6 +24,7 @@ public:
 
 private: 
     float scale;
+    float rotationAngleCharacter;
     float armRightRotationAngle;
     float armLeftRotationAngle;
     float directionRightArmRotation;
@@ -59,6 +60,7 @@ private:
     void drawAdditionalComponents() const;
 
     void rotateWithLimits(float &angle, float speed, float &direction, float minAngle, float maxAngle, float deltaTime);
+    void updateRotation(char direction);
 
     void walkAnimation(float deltaTime);
     void idleAnimation(float deltaTime);

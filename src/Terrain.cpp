@@ -12,7 +12,18 @@ void Terrain::generateTerrain()
     {
         for (int z = 0; z < depth; ++z)
         {
-            blocks.emplace_back(x * blockSize, groundHeight, z * blockSize, blockSize);
+            Block block(x * blockSize, groundHeight, z * blockSize, blockSize);
+
+            if ((x + z) % 2 == 0)
+            {
+                block.setColor(1.0f, 1.0f, 1.0f);
+            }
+            else
+            {
+                block.setColor(0.0f, 0.0f, 0.0f);
+            }
+
+            blocks.push_back(block);
         }
     }
 }

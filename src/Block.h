@@ -7,7 +7,9 @@ class Block
 {
 public:
     Block(float x, float y, float z, float size);
+
     void draw() const;
+    void setColor(float r, float g, float b);
 
     float getX() const;
     float getY() const;
@@ -16,6 +18,7 @@ public:
 private:
     float x, y, z;
     float size;
+    float color[3];
 };
 
 #endif
