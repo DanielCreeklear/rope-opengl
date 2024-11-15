@@ -13,6 +13,10 @@ Simple3DCharacter character(1.0f, 3.0f, 1.0f, 5.0f, 0.3f);
 
 float time = 0.0f;
 
+const float cameraOffsetX = 0.0f;
+const float cameraOffsetY = 1.0f;
+const float cameraOffsetZ = 50.0f;
+
 void init()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -27,6 +31,10 @@ void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
+
+    camera.setPosition(character.getPosX() + cameraOffsetX,
+                       character.getPosY() + cameraOffsetY,
+                       character.getPosZ() + cameraOffsetZ);
 
     camera.applyViewTransform();
     light.applyLighting();
@@ -57,24 +65,59 @@ void mouseButton(int button, int state, int x, int y)
 
 void keyboard(unsigned char key, int x, int y)
 {
-    const float moveSpeed = 1.0f;
+    const float moveSpeed = 0.1f;
 
     switch (key)
     {
     case 'w':
-        camera.moveForward(moveSpeed);
+        character.moveForward = true;
+        character.moveBackward = false;
+        character.moveLeft = false;
+        character.moveRight = false;
+        character.startWalking();
         break;
     case 's':
-        camera.moveBackward(moveSpeed);
+        character.moveForward = false;
+        character.moveBackward = true;
+        character.moveLeft = false;
+        character.moveRight = false;
+        character.startWalking();
         break;
     case 'a':
-        camera.moveLeft(moveSpeed);
+        character.moveForward = false;
+        character.moveBackward = false;
+        character.moveLeft = true;
+        character.moveRight = false;
+        character.startWalking();
         break;
     case 'd':
-        camera.moveRight(moveSpeed);
+        character.moveForward = false;
+        character.moveBackward = false;
+        character.moveLeft = false;
+        character.moveRight = true;
+        character.startWalking();
         break;
     case 27:
         exit(0);
+        break;
+    default:
+        break;
+    }
+}
+
+void keyboardUp(unsigned char key, int x, int y)
+{
+    switch (key)
+    {
+    case 'w':
+    case 's':
+    case 'a':
+    case 'd':
+        character.moveForward = false;
+        character.moveBackward = false;
+        character.moveLeft = false;
+        character.moveRight = false;
+        character.stopWalking();
         break;
     default:
         break;
@@ -93,6 +136,7 @@ int main(int argc, char **argv)
     glutPassiveMotionFunc(mouseMotion);
     glutMouseFunc(mouseButton);
     glutKeyboardFunc(keyboard);
+    glutKeyboardUpFunc(keyboardUp);
 
     glutMouseWheelFunc([](int button, int direction, int x, int y)
                        { camera.mouseWheel(button, direction, x, y); });

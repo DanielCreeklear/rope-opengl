@@ -1,10 +1,10 @@
 #include "Camera.h"
 #include <GL/glut.h>
-#include <iostream>
+#include <cmath>
 
 Camera::Camera()
     : posX(0.0f), posY(0.0f), posZ(5.0f), isLeftButtonPressed(false),
-      yaw(0.0f), pitch(0.0f), lastX(400.0f), lastY(300.0f), sensitivity(0.5f), mouseRotation(true) {}
+      yaw(0.0f), pitch(0.0f), lastX(400.0f), lastY(300.0f), sensitivity(0.5f), mouseRotation(true), cameraOffsetX(0.0f), cameraOffsetY(2.0f), cameraOffsetZ(10.0f) {}
 
 void Camera::setup()
 {
@@ -29,17 +29,18 @@ void Camera::applyViewTransform()
 
     if (mouseRotation)
     {
-        float radius = 10.0f;
+        float radius = cameraOffsetZ;
         float radYaw = yaw * M_PI / 180.0f;
         float radPitch = pitch * M_PI / 180.0f;
 
-        posX = radius * cos(radPitch) * sin(radYaw);
-        posY = radius * sin(radPitch);
+        posX = radius * cos(radPitch) * sin(radYaw) + cameraOffsetX;
+        posY = radius * sin(radPitch) + cameraOffsetY;
         posZ = radius * cos(radPitch) * cos(radYaw);
 
         mouseRotation = false;
     }
 
+    // Coloca a câmera olhando para o personagem (posição 0, 0, 0)
     gluLookAt(posX, posY, posZ, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 }
 
@@ -76,20 +77,20 @@ void Camera::mouseWheel(int button, int direction, int x, int y)
 {
     if (direction > 0)
     {
-        posZ -= 0.5f;
+        cameraOffsetZ -= 0.5f;
     }
     else if (direction < 0)
     {
-        posZ += 0.5f;
+        cameraOffsetZ += 0.5f;
     }
 
-    if (posZ < 2.0f)
+    if (cameraOffsetZ < 2.0f)
     {
-        posZ = 2.0f;
+        cameraOffsetZ = 2.0f;
     }
-    if (posZ > 20.0f)
+    if (cameraOffsetZ > 20.0f)
     {
-        posZ = 20.0f;
+        cameraOffsetZ = 20.0f;
     }
 }
 

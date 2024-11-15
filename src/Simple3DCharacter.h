@@ -7,12 +7,19 @@
 class Simple3DCharacter
 {
 public:
+    bool moveForward, moveBackward, moveLeft, moveRight;
+    
     Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth);
     void draw() const;
     void update(float deltaTime);
 
     void startWalking();
     void stopWalking();
+    void move(float deltaTime);
+
+    float getPosX();
+    float getPosY();
+    float getPosZ();
 
 private: 
     float scale;
@@ -35,6 +42,8 @@ private:
     float headRadius;
     float limbLength;
     float limbWidth;
+
+    float posX, posY, posZ;
 
     bool isWalking;
 

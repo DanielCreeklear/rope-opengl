@@ -6,15 +6,19 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
     : scale(scale), torsoHeight(torsoHeight), headRadius(headRadius), limbLength(limbLength), limbWidth(limbWidth),
       armLeftRotationAngle(0.0f), armRightRotationAngle(0.0f), legLeftRotationAngle(0.0f), legRightRotationAngle(0.0f),
       torsoRotationAngle(0.0f), headRotationAngle(0.0f), directionRightArmRotation(1.0f), directionLeftArmRotation(-1.0f), directionLeftLegRotation(1.0f),
-      directionRightLegRotation(-1.0f), directionHeadRotation(1.0f), directionTorsoRotation(1.0f), isWalking(false) {}
+      directionRightLegRotation(-1.0f), directionHeadRotation(1.0f), directionTorsoRotation(1.0f), isWalking(false),
+      moveForward(false), moveBackward(false), moveLeft(false), moveRight(false), posX(0.0f), posY(0.0f), posZ(0.0f) {}
 
 void Simple3DCharacter::draw() const
 {
     glPushMatrix();
+
+    glTranslatef(posX, posY, posZ);
     drawTorso();
     drawHead();
     drawLimbsWithDetails();
     drawAdditionalComponents();
+
     glPopMatrix();
 }
 
@@ -185,8 +189,46 @@ void Simple3DCharacter::idleAnimation(float deltaTime)
     rotateWithLimits(armRightRotationAngle, armOscillationSpeed, directionRightArmRotation, armMinAngle, armMaxAngle, deltaTime);
 }
 
+void Simple3DCharacter::move(float deltaTime)
+{
+    const float moveSpeed = 0.1f;
+    bool isMoving = false;
+
+    if (moveForward)
+    {
+        posZ -= moveSpeed;
+        isMoving = true;
+    }
+    if (moveBackward)
+    {
+        posZ += moveSpeed;
+        isMoving = true;
+    }
+    if (moveLeft)
+    {
+        posX -= moveSpeed;
+        isMoving = true;
+    }
+    if (moveRight)
+    {
+        posX += moveSpeed;
+        isMoving = true;
+    }
+
+    if (isMoving)
+    {
+        startWalking();
+    }
+    else
+    {
+        stopWalking();
+    }
+}
+
 void Simple3DCharacter::update(float deltaTime)
 {
+    move(deltaTime);
+
     if (isWalking)
     {
         walkAnimation(deltaTime);
@@ -194,4 +236,20 @@ void Simple3DCharacter::update(float deltaTime)
     }
 
     idleAnimation(deltaTime);
+}
+
+
+float Simple3DCharacter::getPosX()
+{
+    return posX;
+}
+
+float Simple3DCharacter::getPosY()
+{
+    return posY;
+}
+
+float Simple3DCharacter::getPosZ()
+{
+    return posZ;
 }
