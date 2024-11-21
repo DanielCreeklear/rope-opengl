@@ -28,6 +28,18 @@ void Terrain::generateTerrain()
     }
 }
 
+float Terrain::getHeightAtPosition(float x, float z) const
+{
+    int blockX = static_cast<int>(x / blockSize);
+    int blockZ = static_cast<int>(z / blockSize);
+
+    if (blockX >= 0 && blockX < width && blockZ >= 0 && blockZ < depth)
+    {
+        return blocks[blockX + blockZ * width].getY();
+    }
+    return groundHeight;
+}
+
 void Terrain::draw() const
 {
     for (const Block &block : blocks)

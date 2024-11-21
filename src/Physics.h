@@ -3,19 +3,22 @@
 
 #include <cmath>
 
+class Terrain;
+
 class Physics
 {
 public:
     Physics(float gravity, float damping, float groundY, float jumpForce)
         : gravity(gravity), damping(damping), groundY(groundY), jumpForce(jumpForce),
-          velocityY(0.0f), isJumping(false), onGround(true), characterY(groundY) {}
+          velocityY(0.0f), isJumping(false), onGround(false), characterY(groundY) {}
 
-    void applyPhysics(float deltaTime);
-    void handleCollision(float deltaTime);
+    void applyPhysics(float deltaTime, const Terrain &terrain);
+    void handleCollision(float deltaTime, const Terrain &terrain);
+    void update(float deltaTime, const Terrain &terrain);
     void jump();
-    void update(float deltaTime);
 
     float getCharacterY() const { return characterY; }
+    void setCharacterPosition(float x, float z, const Terrain &terrain);
 
 private:
     bool isJumping;
@@ -25,7 +28,7 @@ private:
     float damping;
     float groundY;
     float jumpForce;
-    float characterY;
+    float characterX, characterY, characterZ;
 };
 
 #endif

@@ -7,6 +7,7 @@
 class Animator;
 class Physics;
 class Movement;
+class Terrain;
 
 class Simple3DCharacter
 {
@@ -31,7 +32,7 @@ public:
 
     Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth);
     void draw() const;
-    void update(float deltaTime);
+    void update(float deltaTime, const Terrain &terrain);
 
     void startWalking();
     void stopWalking();

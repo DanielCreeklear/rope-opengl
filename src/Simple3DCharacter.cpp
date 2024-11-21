@@ -3,6 +3,7 @@
 #include "Animator.h"
 #include "Physics.h"
 #include "Movement.h"
+#include "Terrain.h"
 #include <algorithm>
 
 Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth)
@@ -10,11 +11,12 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
       armLeftRotationAngle(0.0f), armRightRotationAngle(0.0f), legLeftRotationAngle(0.0f), legRightRotationAngle(0.0f),
       torsoRotationAngle(0.0f), headRotationAngle(0.0f), directionRightArmRotation(1.0f), directionLeftArmRotation(-1.0f), directionLeftLegRotation(1.0f),
       directionRightLegRotation(-1.0f), directionHeadRotation(1.0f), directionTorsoRotation(1.0f), isWalking(false),
-      moveForward(false), moveBackward(false), moveLeft(false), moveRight(false), posX(0.0f), posY(0.0f), posZ(0.0f), rotationAngleCharacter(0.0f)
+      moveForward(false), moveBackward(false), moveLeft(false), moveRight(false), posX(0.0f), posZ(0.0f), rotationAngleCharacter(0.0f)
 {
     animator = new Animator(this);
     physics = new Physics(-16.8f, 0.8f, 0.0f, 10.0f);
     movement = new Movement(10.0f);
+    posY = 10.0f;
 }
 
 void Simple3DCharacter::drawHead() const
@@ -145,9 +147,10 @@ void Simple3DCharacter::setMoveRight(bool value) { movement->setMoveRight(value)
 
 void Simple3DCharacter::draw() const
 {
+    const float heightZero = limbLength / 2.0f + torsoHeight / 2.0f;
     glPushMatrix();
 
-    glTranslatef(posX, posY, posZ);
+    glTranslatef(posX, posY + heightZero, posZ);
     glRotatef(rotationAngleCharacter, 0.0f, 1.0f, 0.0f);
     drawTorso();
     drawHead();
@@ -157,12 +160,13 @@ void Simple3DCharacter::draw() const
     glPopMatrix();
 }
 
-void Simple3DCharacter::update(float deltaTime)
+void Simple3DCharacter::update(float deltaTime, const Terrain &terrain)
 {
-    physics->applyPhysics(deltaTime);
-    physics->handleCollision(deltaTime);
+    physics->setCharacterPosition(posX, posZ, terrain);
+    physics->applyPhysics(deltaTime, terrain);
+    physics->handleCollision(deltaTime, terrain);
     posY = physics->getCharacterY();
-    physics->update(deltaTime);
+    physics->update(deltaTime, terrain);
 
     move(deltaTime);
 

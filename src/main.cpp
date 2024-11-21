@@ -19,13 +19,13 @@ const float cameraOffsetX = 0.0f;
 const float cameraOffsetY = 10.0f;
 const float cameraOffsetZ = 30.0f;
 
-void createTerrain(float height)
+Terrain *mainTerrain;
+
+Terrain *createTerrain(float height)
 {
-    glPushMatrix();
-    glTranslatef(-5.0f, 0.0f, -10.0f);
-    Terrain terrain(1.0f, 20, 20, height);
-    terrain.draw();
-    glPopMatrix();
+    float blockSize = 1.0f;
+    Terrain *terrain = new Terrain(blockSize, 20, 20, height + blockSize);
+    return terrain;
 }
 
 void init()
@@ -35,7 +35,9 @@ void init()
 
     light.initialize();
     camera.setup();
-    // camera.setPosition(0.0f, 0.0f, 5.0f);
+
+    mainTerrain = createTerrain(0.0f);
+    character.draw();
 }
 
 void display()
@@ -46,7 +48,7 @@ void display()
     camera.applyViewTransform(character.getPosX(), character.getPosY(), character.getPosZ());
     light.applyLighting();
 
-    createTerrain(character.getFootHeight());
+    mainTerrain->draw();
     drawAxes();
     character.draw();
 
@@ -61,7 +63,7 @@ void update(int value)
 
     lastFrameTime = currentFrameTime;
 
-    character.update(deltaTime);
+    character.update(deltaTime, *mainTerrain);
 
     glutPostRedisplay();
 
