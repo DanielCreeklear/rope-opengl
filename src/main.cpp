@@ -85,32 +85,16 @@ void keyboard(unsigned char key, int x, int y)
     switch (key)
     {
     case 'w':
-        character.moveForward = true;
-        character.moveBackward = false;
-        character.moveLeft = false;
-        character.moveRight = false;
-        character.startWalking();
+        character.setMoveForward(true);
         break;
     case 's':
-        character.moveForward = false;
-        character.moveBackward = true;
-        character.moveLeft = false;
-        character.moveRight = false;
-        character.startWalking();
+        character.setMoveBackward(true);
         break;
     case 'a':
-        character.moveForward = false;
-        character.moveBackward = false;
-        character.moveLeft = true;
-        character.moveRight = false;
-        character.startWalking();
+        character.setMoveLeft(true);
         break;
     case 'd':
-        character.moveForward = false;
-        character.moveBackward = false;
-        character.moveLeft = false;
-        character.moveRight = true;
-        character.startWalking();
+        character.setMoveRight(true);
         break;
     case ' ':
         character.jump();
@@ -128,14 +112,16 @@ void keyboardUp(unsigned char key, int x, int y)
     switch (key)
     {
     case 'w':
+        character.setMoveForward(false);
+        break;
     case 's':
+        character.setMoveBackward(false);
+        break;
     case 'a':
+        character.setMoveLeft(false);
+        break;
     case 'd':
-        character.moveForward = false;
-        character.moveBackward = false;
-        character.moveLeft = false;
-        character.moveRight = false;
-        character.stopWalking();
+        character.setMoveRight(false);
         break;
     default:
         break;

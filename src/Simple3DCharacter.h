@@ -6,6 +6,7 @@
 
 class Animator;
 class Physics;
+class Movement;
 
 class Simple3DCharacter
 {
@@ -42,6 +43,11 @@ public:
     float getPosZ();
     float getFootHeight() const;
 
+    void setMoveForward(bool value);
+    void setMoveBackward(bool value);
+    void setMoveLeft(bool value);
+    void setMoveRight(bool value);
+
 private:
     float scale;
 
@@ -56,6 +62,7 @@ private:
 
     Animator *animator;
     Physics *physics;
+    Movement *movement;
 
     void drawLeftArm() const;
     void drawRightArm() const;

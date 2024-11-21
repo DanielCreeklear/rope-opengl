@@ -2,6 +2,7 @@
 #include "Cylinder.h"
 #include "Animator.h"
 #include "Physics.h"
+#include "Movement.h"
 #include <algorithm>
 
 Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth)
@@ -13,6 +14,7 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
 {
     animator = new Animator(this);
     physics = new Physics(-16.8f, 0.8f, 0.0f, 10.0f);
+    movement = new Movement(10.0f);
 }
 
 void Simple3DCharacter::drawHead() const
@@ -124,36 +126,7 @@ void Simple3DCharacter::jump() { physics->jump(); }
 
 void Simple3DCharacter::move(float deltaTime)
 {
-    const float moveSpeed = 10.0f;
-    bool isMoving = false;
-
-    if (moveForward)
-    {
-        posZ -= moveSpeed * deltaTime;
-        rotationAngleCharacter = 0.0f;
-        isMoving = true;
-    }
-
-    if (moveBackward)
-    {
-        posZ += moveSpeed * deltaTime;
-        rotationAngleCharacter = 0.0f;
-        isMoving = true;
-    }
-
-    if (moveLeft)
-    {
-        posX -= moveSpeed * deltaTime;
-        rotationAngleCharacter = 90.0f;
-        isMoving = true;
-    }
-
-    if (moveRight)
-    {
-        posX += moveSpeed * deltaTime;
-        rotationAngleCharacter = -90.0f;
-        isMoving = true;
-    }
+    bool isMoving = movement->updatePosition(posX, posZ, deltaTime, rotationAngleCharacter);
 
     if (isMoving)
     {
@@ -164,6 +137,11 @@ void Simple3DCharacter::move(float deltaTime)
         stopWalking();
     }
 }
+
+void Simple3DCharacter::setMoveForward(bool value) { movement->setMoveForward(value); }
+void Simple3DCharacter::setMoveBackward(bool value) { movement->setMoveBackward(value); }
+void Simple3DCharacter::setMoveLeft(bool value) { movement->setMoveLeft(value); }
+void Simple3DCharacter::setMoveRight(bool value) { movement->setMoveRight(value); }
 
 void Simple3DCharacter::draw() const
 {
