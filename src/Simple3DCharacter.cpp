@@ -1,5 +1,7 @@
 #include "Simple3DCharacter.h"
 #include "Cylinder.h"
+#include "Animator.h"
+#include "Physics.h"
 #include <algorithm>
 
 Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth)
@@ -7,20 +9,10 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
       armLeftRotationAngle(0.0f), armRightRotationAngle(0.0f), legLeftRotationAngle(0.0f), legRightRotationAngle(0.0f),
       torsoRotationAngle(0.0f), headRotationAngle(0.0f), directionRightArmRotation(1.0f), directionLeftArmRotation(-1.0f), directionLeftLegRotation(1.0f),
       directionRightLegRotation(-1.0f), directionHeadRotation(1.0f), directionTorsoRotation(1.0f), isWalking(false),
-      moveForward(false), moveBackward(false), moveLeft(false), moveRight(false), posX(0.0f), posY(0.0f), posZ(0.0f), rotationAngleCharacter(0.0f) {}
-
-void Simple3DCharacter::draw() const
+      moveForward(false), moveBackward(false), moveLeft(false), moveRight(false), posX(0.0f), posY(0.0f), posZ(0.0f), rotationAngleCharacter(0.0f)
 {
-    glPushMatrix();
-
-    glTranslatef(posX, posY, posZ);
-    glRotatef(rotationAngleCharacter, 0.0f, 1.0f, 0.0f);
-    drawTorso();
-    drawHead();
-    drawLimbsWithDetails();
-    drawAdditionalComponents();
-
-    glPopMatrix();
+    animator = new Animator(this);
+    physics = new Physics(-16.8f, 0.8f, 0.0f, 10.0f);
 }
 
 void Simple3DCharacter::drawHead() const
@@ -124,22 +116,6 @@ void Simple3DCharacter::drawAdditionalComponents() const
     glPopMatrix();
 }
 
-void Simple3DCharacter::rotateWithLimits(float &angle, float speed, float &direction, float minAngle, float maxAngle, float deltaTime)
-{
-    if (angle > maxAngle)
-    {
-        angle = maxAngle;
-        direction = -1.0f;
-    }
-    else if (angle < minAngle)
-    {
-        angle = minAngle;
-        direction = 1.0f;
-    }
-
-    angle += speed * direction;
-}
-
 void Simple3DCharacter::startWalking()
 {
     isWalking = true;
@@ -150,75 +126,40 @@ void Simple3DCharacter::stopWalking()
     isWalking = false;
 }
 
-void Simple3DCharacter::walkAnimation(float deltaTime)
+void Simple3DCharacter::jump()
 {
-    const float velocity = 3.0f;
-    const float armSpeed = 1.0f * velocity;
-    const float legSpeed = 1.0f * velocity;
-    const float headSpeed = 2.0f * velocity;
-
-    const float armMaxAngle = 45.0f;
-    const float armMinAngle = -45.0f;
-    const float legMaxAngle = 30.0f;
-    const float legMinAngle = -30.0f;
-    const float headMaxAngle = 30.0f;
-    const float headMinAngle = -30.0f;
-
-    rotateWithLimits(armLeftRotationAngle, armSpeed, directionLeftArmRotation, armMinAngle, armMaxAngle, deltaTime);
-    rotateWithLimits(armRightRotationAngle, armSpeed, directionRightArmRotation, armMinAngle, armMaxAngle, deltaTime);
-    rotateWithLimits(legLeftRotationAngle, legSpeed, directionLeftLegRotation, legMinAngle, legMaxAngle, deltaTime);
-    rotateWithLimits(legRightRotationAngle, legSpeed, directionRightLegRotation, legMinAngle, legMaxAngle, deltaTime);
-    rotateWithLimits(headRotationAngle, headSpeed, directionHeadRotation, headMinAngle, headMaxAngle, deltaTime);
-}
-
-void Simple3DCharacter::idleAnimation(float deltaTime)
-{
-    float torsoOscillationSpeed = 0.08f;
-    float torsoMaxAngle = 3.0f;
-    float torsoMinAngle = -3.0f;
-    rotateWithLimits(torsoRotationAngle, torsoOscillationSpeed, directionTorsoRotation, torsoMinAngle, torsoMaxAngle, deltaTime);
-
-    float headOscillationSpeed = 0.1f;
-    float headMaxAngle = 5.0f;
-    float headMinAngle = -5.0f;
-    rotateWithLimits(headRotationAngle, headOscillationSpeed, directionHeadRotation, headMinAngle, headMaxAngle, deltaTime);
-
-    float armOscillationSpeed = 0.2f;
-    float armMaxAngle = 5.0f;
-    float armMinAngle = -5.0f;
-    rotateWithLimits(armLeftRotationAngle, armOscillationSpeed, directionLeftArmRotation, armMinAngle, armMaxAngle, deltaTime);
-    rotateWithLimits(armRightRotationAngle, armOscillationSpeed, directionRightArmRotation, armMinAngle, armMaxAngle, deltaTime);
+    physics->jump();
 }
 
 void Simple3DCharacter::move(float deltaTime)
 {
-    const float moveSpeed = 0.1f;
+    const float moveSpeed = 10.0f;
     bool isMoving = false;
 
     if (moveForward)
     {
-        posZ -= moveSpeed;
+        posZ -= moveSpeed * deltaTime;
         rotationAngleCharacter = 0.0f;
         isMoving = true;
     }
 
     if (moveBackward)
     {
-        posZ += moveSpeed;
+        posZ += moveSpeed * deltaTime;
         rotationAngleCharacter = 0.0f;
         isMoving = true;
     }
 
     if (moveLeft)
     {
-        posX -= moveSpeed;
+        posX -= moveSpeed * deltaTime;
         rotationAngleCharacter = 90.0f;
         isMoving = true;
     }
 
     if (moveRight)
     {
-        posX += moveSpeed;
+        posX += moveSpeed * deltaTime;
         rotationAngleCharacter = -90.0f;
         isMoving = true;
     }
@@ -233,17 +174,36 @@ void Simple3DCharacter::move(float deltaTime)
     }
 }
 
+void Simple3DCharacter::draw() const
+{
+    glPushMatrix();
+
+    glTranslatef(posX, posY, posZ);
+    glRotatef(rotationAngleCharacter, 0.0f, 1.0f, 0.0f);
+    drawTorso();
+    drawHead();
+    drawLimbsWithDetails();
+    drawAdditionalComponents();
+
+    glPopMatrix();
+}
+
 void Simple3DCharacter::update(float deltaTime)
 {
+    physics->applyPhysics(deltaTime);
+    physics->handleCollision(deltaTime);
+    posY = physics->getCharacterY();
+    physics->update(deltaTime);
+
     move(deltaTime);
 
     if (isWalking)
     {
-        walkAnimation(deltaTime);
+        animator->walkAnimation(deltaTime);
         return;
     }
 
-    idleAnimation(deltaTime);
+    animator->idleAnimation(deltaTime);
 }
 
 float Simple3DCharacter::getPosX()

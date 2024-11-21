@@ -12,6 +12,7 @@ Camera camera;
 Light light;
 Simple3DCharacter character(1.0f, 3.0f, 1.0f, 5.0f, 0.3f);
 
+float lastFrameTime = 0.0f;
 float time = 0.0f;
 
 const float cameraOffsetX = 0.0f;
@@ -54,9 +55,16 @@ void display()
 
 void update(int value)
 {
-    time += 0.05f;
-    character.update(time);
+    float currentFrameTime = glutGet(GLUT_ELAPSED_TIME);
+
+    float deltaTime = (currentFrameTime - lastFrameTime) * 0.001f;
+
+    lastFrameTime = currentFrameTime;
+
+    character.update(deltaTime);
+
     glutPostRedisplay();
+
     glutTimerFunc(16, update, 0);
 }
 
@@ -103,6 +111,9 @@ void keyboard(unsigned char key, int x, int y)
         character.moveLeft = false;
         character.moveRight = true;
         character.startWalking();
+        break;
+    case ' ':
+        character.jump();
         break;
     case 27:
         exit(0);
