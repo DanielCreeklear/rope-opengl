@@ -52,3 +52,8 @@ void Terrain::setHeight(float height)
 {
     groundHeight = height;
 }
+
+bool Terrain::isWithinTerrain(float x, float z) const
+{
+    return (x >= 0 && x < width) && (z >= 0 && z < depth);
+}

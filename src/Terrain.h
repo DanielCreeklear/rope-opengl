@@ -11,6 +11,7 @@ public:
     void draw() const;
     void setHeight(float height);
     float getHeightAtPosition(float x, float z) const;
+    bool isWithinTerrain(float x, float z) const;
 
 private: 
     float blockSize, groundHeight;
