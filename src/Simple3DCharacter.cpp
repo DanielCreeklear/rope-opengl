@@ -116,20 +116,11 @@ void Simple3DCharacter::drawAdditionalComponents() const
     glPopMatrix();
 }
 
-void Simple3DCharacter::startWalking()
-{
-    isWalking = true;
-}
+void Simple3DCharacter::startWalking() { isWalking = true; }
 
-void Simple3DCharacter::stopWalking()
-{
-    isWalking = false;
-}
+void Simple3DCharacter::stopWalking() { isWalking = false; }
 
-void Simple3DCharacter::jump()
-{
-    physics->jump();
-}
+void Simple3DCharacter::jump() { physics->jump(); }
 
 void Simple3DCharacter::move(float deltaTime)
 {
