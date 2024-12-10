@@ -6,9 +6,9 @@
 #include "input.h"
 #include "Axes.h"
 #include "Terrain.h"
-#include "DebugTexture.h"
+// #include "DebugTexture.h"
 
-DebugTexture debugTex;
+// DebugTexture debugTex;
 
 float lastFrameTime = 0.0f;
 
@@ -28,16 +28,17 @@ void init()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
-    if (!debugTex.loadTexture("src/pelo.png"))
-    {
-        std::cerr << "Erro ao carregar a textura!" << std::endl;
-        exit(1);
-    }
+    // if (!debugTex.loadTexture("src/pelo.png"))
+    // {
+    //     std::cerr << "Erro ao carregar a textura!" << std::endl;
+    //     exit(1);
+    // }
 
     Globals::light.initialize();
     Globals::camera.setup();
 
     Globals::mainTerrain = createTerrain(0.0f);
+    Globals::character.init();
     Globals::character.draw();
 }
 
@@ -54,7 +55,7 @@ void display()
     Globals::character.draw();
     Globals::ball.draw();
 
-    debugTex.renderTextureQuad();
+    // debugTex.renderTextureQuad();
 
     glutSwapBuffers();
 }

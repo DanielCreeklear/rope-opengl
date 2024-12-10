@@ -2,11 +2,11 @@
 #include "Cylinder.h"
 #include "Animator.h"
 #include "Physics.h"
-#include "stb_image.h"
 #include "Movement.h"
 #include "Terrain.h"
 #include "SolidCube.h"
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 
 Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth)
@@ -20,7 +20,10 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
     physics = new Physics(-16.8f, 0.8f, 0.0f, 10.0f);
     movement = new Movement(10.0f);
     posY = 10.0f;
+}
 
+void Simple3DCharacter::init()
+{
     loadTexture("src/pelo.png", &textureIDTorso);
 }
 
@@ -31,11 +34,20 @@ void Simple3DCharacter::loadTexture(const char *filename, GLuint *textureID)
 
     if (!data)
     {
-        std::cerr << "Erro ao carregar a textura!" << std::endl;
+        std::cerr << "Erro ao carregar a textura: " << stbi_failure_reason() << std::endl;
         return;
     }
 
+    std::cout << "Textura carregada com sucesso. Dimensões: " << width << "x" << height << std::endl;
+
     glGenTextures(1, textureID);
+    if (textureID == 0)
+    {
+        std::cerr << "Erro ao gerar o Texture ID!" << std::endl;
+        stbi_image_free(data);
+        return;
+    }
+
     glBindTexture(GL_TEXTURE_2D, *textureID);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -45,6 +57,16 @@ void Simple3DCharacter::loadTexture(const char *filename, GLuint *textureID)
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);
+
+    std::cout << "Texture ID " << *textureID << " carregado e vinculado com sucesso." << std::endl;
+}
+
+void Simple3DCharacter::setMaterial(const float ambient[4], const float diffuse[4], const float specular[4], float shininess) const
+{
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 }
 
 void Simple3DCharacter::drawHead() const
@@ -64,10 +86,17 @@ void Simple3DCharacter::drawHead() const
 
 void Simple3DCharacter::drawTorso() const
 {
+    const float ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    const float diffuse[] = {0.6f, 0.6f, 0.6f, 1.0f};
+    const float specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    const float shininess = 32.0f;
+
+    setMaterial(ambient, diffuse, specular, shininess);
+
     glPushMatrix();
     glTranslatef(0.0f, torsoHeight / 2.0f, 0.0f);
     glRotatef(torsoRotationAngle, 0.0f, 1.0f, 0.0f);
-    // glColor3f(0.5f, 0.5f, 0.5f);
+    glColor3f(0.5f, 0.5f, 0.5f);
 
     if (textureIDTorso)
     {
@@ -167,10 +196,56 @@ void Simple3DCharacter::drawRightArm() const
     float yOffset = scale * 1.0f + limbLength / 2.0f - 0.2f * limbLength;
 
     glPushMatrix();
+
+    // Rotacionando o cilindro
     glTranslatef(0.0f, (limbLength / 2.0f), 0.0f);
     glRotatef(armRightRotationAngle, 1.0f, 0.0f, 0.0f);
     glTranslatef(0.0f, -(limbLength / 2.0f), 0.0f);
+
     drawLimb(limbLength, limbWidth, xOffset, yOffset, 0.0f, 90.0f);
+
+    // glTranslatef(0.0f, (limbLength), 0.0f);
+    // glRotatef(armRightRotationAngle, 1.0f, 0.0f, 0.0f);
+    // glTranslatef(0.0f, -(limbLength), 0.0f);
+
+    drawForearm(limbLength, limbWidth, xOffset, -1.0f * yOffset, 0.0f, armRightRotationAngle);
+    glPopMatrix();
+}
+
+void Simple3DCharacter::drawForearm(float length, float width, float xOffset, float yOffset, float zOffset, float rotationAngle) const
+{
+    float newAngle = (rotationAngle + 5.0f) * (10.0f / (5.0f - (-5.0f)));
+
+    glPointSize(10.0f);          // Tamanho do ponto para fácil visualização
+    glColor3f(1.0f, 0.0f, 0.0f); // Vermelho para o ponto inicial
+    glBegin(GL_POINTS);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glEnd();
+
+    glPushMatrix();
+    glTranslatef(xOffset, yOffset, zOffset);
+
+    glColor3f(0.0f, 1.0f, 0.0f); // Verde para o ponto após a translação
+    glBegin(GL_POINTS);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glEnd();
+
+    glTranslatef(0.0f, (length), 0.0f);
+    glRotatef(newAngle, 1.0f, 0.0f, 0.0f);
+    glTranslatef(0.0f, -(length), 0.0f);
+
+    glColor3f(0.0f, 0.0f, 1.0f); // Azul para o ponto final
+    glBegin(GL_POINTS);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glEnd();
+
+    glColor3f(0.7f, 0.7f, 0.7f);
+
+    glPushMatrix();
+    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+    drawCylinder(width, length, 10, 10);
+    glPopMatrix();
+
     glPopMatrix();
 }
 

@@ -5,13 +5,13 @@ Light::Light()
 {
     position[0] = 0.0f;
     position[1] = 0.0f;
-    position[2] = 5.0f;
+    position[2] = 10.0f;
     position[3] = 1.0f;
 }
 
 void Light::initialize()
 {
-    GLfloat ambientLight[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    GLfloat ambientLight[] = {0.8f, 0.8f, 0.8f, 1.0f};
     GLfloat diffuseLight[] = {0.8f, 0.8f, 0.8f, 1.0f};
 
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);

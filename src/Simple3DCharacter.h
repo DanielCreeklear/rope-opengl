@@ -3,6 +3,7 @@
 
 #include <GL/glut.h>
 #include <cmath>
+#include "stb_image.h"
 
 class Animator;
 class Physics;
@@ -50,6 +51,8 @@ public:
     void setMoveLeft(bool value);
     void setMoveRight(bool value);
 
+    void init();
+
 private:
     float scale;
 
@@ -73,11 +76,13 @@ private:
     void drawRightArm() const;
     void drawLeftLeg() const;
     void drawRightLeg() const;
+    void drawForearm(float length, float width, float xOffset, float yOffset, float zOffset, float rotationAngle) const;
     void drawTorso() const;
     void drawHead() const;
     void drawLimbsWithDetails() const;
     void drawLimb(float length, float width, float xOffset, float yOffset, float zOffset, float rotationAngle) const;
     void drawAdditionalComponents() const;
+    void setMaterial(const float ambient[4], const float diffuse[4], const float specular[4], float shininess) const;
 
     void updateRotation(char direction);
 };
