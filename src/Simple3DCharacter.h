@@ -33,6 +33,7 @@ public:
     Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth);
     void draw() const;
     void update(float deltaTime, const Terrain &terrain);
+    void loadTexture(const char* filename);
 
     void startWalking();
     void stopWalking();
@@ -64,6 +65,8 @@ private:
     Animator *animator;
     Physics *physics;
     Movement *movement;
+
+    GLuint textureIDTorso;
 
     void drawLeftArm() const;
     void drawRightArm() const;

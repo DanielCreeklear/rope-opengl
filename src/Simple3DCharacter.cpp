@@ -2,6 +2,7 @@
 #include "Cylinder.h"
 #include "Animator.h"
 #include "Physics.h"
+#include "stb_image.h"
 #include "Movement.h"
 #include "Terrain.h"
 #include "SolidCube.h"
@@ -18,6 +19,29 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
     physics = new Physics(-16.8f, 0.8f, 0.0f, 10.0f);
     movement = new Movement(10.0f);
     posY = 10.0f;
+
+    loadTexture("pelo.png", textureIDTorso);
+}
+
+void Simple3DCharacter::loadTexture(const char* filename, GLuint* textureID)
+{
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load(filename, &width, &height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+    if (data)
+    {
+        glGenTextures(1, textureID);
+        glBindTExture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMA_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
 }
 
 void Simple3DCharacter::drawHead() const
@@ -43,9 +67,9 @@ void Simple3DCharacter::drawTorso() const
     glColor3f(0.5f, 0.5f, 0.5f);
 
     glEnable(GL_TEXTURE_2D);
-    glBlindTexture(GL_TEXTURE_2D, textureID);
+    glBindTexture(GL_TEXTURE_2D, textureIDTorso);
 
-    glBegin(GL_BEGINS);    
+    glBegin(GLU_BEGIN);    
     drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
                  torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
                  torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
