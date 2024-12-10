@@ -8,7 +8,6 @@
 #include "Terrain.h"
 #include "DebugTexture.h"
 
-
 DebugTexture debugTex;
 
 float lastFrameTime = 0.0f;
@@ -16,7 +15,6 @@ float lastFrameTime = 0.0f;
 const float cameraOffsetX = 0.0f;
 const float cameraOffsetY = 10.0f;
 const float cameraOffsetZ = 30.0f;
-
 
 Terrain *createTerrain(float height)
 {
@@ -70,17 +68,28 @@ void update(int value)
     lastFrameTime = currentFrameTime;
 
     Globals::character.update(deltaTime, *Globals::mainTerrain);
-    Globals::ball.update(deltaTime, *Globals::mainTerrain);
 
     if (Globals::isButtonPressed)
     {
-        int windowWidth = glutGet(GLUT_WINDOW_WIDTH);
-        int windowHeight = glutGet(GLUT_WINDOW_HEIGHT);
+        GLdouble worldX, worldY, worldZ;
+        screenToWorld(Globals::x, Globals::y, worldX, worldY, worldZ);
 
-        float mouseX = (float)(Globals::x - windowWidth / 2) / (windowWidth / 2);
-        float mouseZ = -(float)(Globals::y - windowHeight / 2) / (windowHeight / 2);
+        float ballX = Globals::ball.getPosX();
+        float ballY = Globals::ball.getPosY();
+        float ballZ = Globals::ball.getPosZ();
 
-        Globals::ball.setPosition(mouseX, Globals::ball.getPosY(), mouseZ);
+        float dx = worldX - ballX;
+        float dy = worldY - ballY;
+        float dz = worldZ - ballZ;
+
+        if (sqrt(dx * dx + dy * dy + dz * dz) < 1.0f)
+        {
+            Globals::ball.setPosition(worldX, worldY, worldZ);
+        }
+    }
+    else
+    {
+        Globals::ball.update(deltaTime, *Globals::mainTerrain);
     }
 
     glutPostRedisplay();

@@ -1,36 +1,58 @@
 #include "input.h"
 #include "Globals.h"
+#include <iostream>
 
 const float BALL_DETECTION_RADIUS = 50.0f;
 
-bool isMouseOverBall(int mouseX, int mouseY)
+void screenToWorld(int mouseX, int mouseY, GLdouble &worldX, GLdouble &worldY, GLdouble &worldZ)
 {
     int viewport[4];
     double modelview[16];
     double projection[16];
-    GLdouble ballScreenX, ballScreenY, ballScreenZ;
 
     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
     glGetIntegerv(GL_VIEWPORT, viewport);
 
-    float ballX = Globals::ball.getPosX();
-    float ballY = Globals::ball.getPosY();
-    float ballZ = Globals::ball.getPosZ();
+    float winX = (float)mouseX;
+    float winY = (float)(viewport[3] - mouseY);
 
-    gluProject(ballX, ballY, ballZ, modelview, projection, viewport, &ballScreenX, &ballScreenY, &ballScreenZ);
+    float fixedPlaneY = Globals::ball.getPosY();
 
-    ballScreenY = viewport[3] - ballScreenY;
+    GLdouble nearX, nearY, nearZ;
+    GLdouble farX, farY, farZ;
 
-    float dx = mouseX - ballScreenX;
-    float dy = mouseY - ballScreenY;
-    float distance = sqrt(dx * dx + dy * dy);
+    gluUnProject(winX, winY, 0.0, modelview, projection, viewport, &nearX, &nearY, &nearZ);
+    gluUnProject(winX, winY, 1.0, modelview, projection, viewport, &farX, &farY, &farZ);
 
-    return distance <= BALL_DETECTION_RADIUS;
+    double dirX = farX - nearX;
+    double dirY = farY - nearY;
+    double dirZ = farZ - nearZ;
+
+    double length = sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ);
+    dirX /= length;
+    dirY /= length;
+    dirZ /= length;
+
+    if (dirY != 0.0)
+    {
+        double t = (fixedPlaneY - nearY) / dirY;
+        worldX = nearX + t * dirX;
+        worldY = fixedPlaneY;
+        worldZ = nearZ + t * dirZ;
+    }
+    else
+    {
+        worldX = nearX;
+        worldY = fixedPlaneY;
+        worldZ = nearZ;
+    }
 }
 
 void mouseMotion(int x, int y)
 {
+    Globals::x = x;
+    Globals::y = y;
     Globals::camera.mouseMotion(x, y);
 }
 
@@ -38,18 +60,15 @@ void mouseButton(int button, int state, int x, int y)
 {
     if (button == 1)
     {
-        if (state == GLUT_DOWN && isMouseOverBall(x, y))
+        if (state == GLUT_DOWN)
         {
-            Globals::isButtonPressed = true;
-        }
-        else if (state == GLUT_UP)
-        {
-            Globals::isButtonPressed = false;
+            Globals::isButtonPressed = !Globals::isButtonPressed;
+            
         }
     }
 
-    x = x;
-    y = y;
+    Globals::x = x;
+    Globals::y = y;
     Globals::camera.mouseButton(button, state, x, y);
 }
 
