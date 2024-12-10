@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include <GL/glut.h>
+#include <iostream>
 
 Camera::Camera()
     : cameraOffsetX(0.0f), cameraOffsetY(10.0f), cameraOffsetZ(30.0f), mouseRotation(false) {}
@@ -13,41 +13,45 @@ void Camera::setup()
     glMatrixMode(GL_MODELVIEW);
 }
 
-void Camera::setPosition(float x, float y, float z)
-{
-    posX = x;
-    posY = y;
-    posZ = z;
-}
-
 void Camera::applyViewTransform(float characterX, float characterY, float characterZ)
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    float targetPosX = characterX + cameraOffsetZ * cos(yaw);
-    float targetPosY = characterY + cameraOffsetY;
-    float targetPosZ = characterZ + cameraOffsetZ * sin(yaw);
+    float offsetX = cameraOffsetZ * cos(pitch) * sin(yaw);
+    float offsetY = cameraOffsetZ * sin(pitch) + cameraOffsetY;
+    float offsetZ = cameraOffsetZ * cos(pitch) * cos(yaw);
 
-    posX += (targetPosX - posX) * 0.1f;
-    posY += (targetPosY - posY) * 0.1f;
-    posZ += (targetPosZ - posZ) * 0.1f;
+    posX = characterX + offsetX;
+    posY = characterY + offsetY;
+    posZ = characterZ + offsetZ;
+
+    std::cout << "Camera offset: (" << offsetX << ", " << offsetY << ", " << offsetZ << ")" << std::endl;
+    // std::cout << "Camera pos: (" << posX << ", " << posY << ", " << posZ << ")" << std::endl;
 
     gluLookAt(posX, posY, posZ, characterX, characterY, characterZ, 0.0f, 1.0f, 0.0f);
 }
 
 void Camera::mouseMotion(int x, int y)
 {
-    if (mouseRotation) // Só gira se o botão esquerdo estiver pressionado
+    sensitivity = 0.01f;
+    if (mouseRotation)
     {
         int centerX = glutGet(GLUT_WINDOW_WIDTH) / 2;
-        int deltaX = x - centerX;
+        int centerY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
 
-        float sensitivity = 0.005f;
+        int deltaX = x - centerX;
+        int deltaY = y - centerY;
 
         yaw += deltaX * sensitivity;
+        pitch -= deltaY * sensitivity;
 
-        glutWarpPointer(centerX, glutGet(GLUT_WINDOW_HEIGHT) / 2);
+        if (pitch > 1.5f)
+            pitch = 1.5f;
+        if (pitch < -1.5f)
+            pitch = -1.5f;
+
+        glutWarpPointer(centerX, centerY);
     }
 }
 
@@ -59,4 +63,15 @@ void Camera::mouseButton(int button, int state, int x, int y)
     }
 }
 
-void Camera::mouseWheel(int button, int direction, int x, int y) {}
+void Camera::mouseWheel(int button, int direction, int x, int y)
+{
+    if (direction > 0)
+        cameraOffsetZ -= 1.0f;
+    else
+        cameraOffsetZ += 1.0f;
+
+    if (cameraOffsetZ < 5.0f)
+        cameraOffsetZ = 5.0f;
+    if (cameraOffsetZ > 50.0f)
+        cameraOffsetZ = 50.0f;
+}
