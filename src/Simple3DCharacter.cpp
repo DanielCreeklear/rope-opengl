@@ -4,6 +4,7 @@
 #include "Physics.h"
 #include "Movement.h"
 #include "Terrain.h"
+#include "SolidCube.h"
 #include <algorithm>
 
 Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth)
@@ -40,7 +41,43 @@ void Simple3DCharacter::drawTorso() const
     glTranslatef(0.0f, torsoHeight / 2.0f, 0.0f);
     glRotatef(torsoRotationAngle, 0.0f, 1.0f, 0.0f);
     glColor3f(0.5f, 0.5f, 0.5f);
-    glutSolidCube(torsoHeight);
+
+    glEnable(GL_TEXTURE_2D);
+    glBlindTexture(GL_TEXTURE_2D, textureID);
+
+    glBegin(GL_BEGINS);    
+    drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
+                 torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
+                 torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
+                 -torsoHeight / 2, torsoHeight / 2, torsoHeight / 2);
+    
+    drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
+                 torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
+                 torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2,
+                 -torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2);
+    
+    drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
+                 -torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
+                 -torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
+                 -torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2);
+    
+    drawQuadFace(torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
+                 torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
+                 torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
+                 torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2);
+    
+    drawQuadFace(-torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2,
+                 torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2,
+                 torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
+                 -torsoHeight / 2, torsoHeight / 2, torsoHeight / 2);
+    
+    drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
+                 torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
+                 torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
+                 -torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
 }
 
