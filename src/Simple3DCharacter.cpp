@@ -224,29 +224,59 @@ void Simple3DCharacter::drawForearm(float length, float width, float rotationAng
     glPopMatrix();
 }
 
-void Simple3DCharacter::drawLeftLeg() const
+void Simple3DCharacter::drawCalf(float length, float width, float rotationAngle) const
 {
     glPushMatrix();
+    glColor3f(0.7f, 0.7f, 0.7f);
+
+    glRotatef(rotationAngle, 1.0f, 0.0f, 0.0f);
+    drawCylinder(width, length, 10, 10);
+
+    glPopMatrix();
+}
+
+void Simple3DCharacter::drawLeftLeg() const
+{
+    float xOffset = scale * 2.0f / 2.0f;
+    float yOffset = -(scale * 1.0f + limbLength / 2.0f);
+    float zOffset = 0.0f;
+    float forearmRotationAngle = legLeftRotationAngle > 0.0f ? legLeftRotationAngle * -2.0f : 0.0f;
+
+    glPushMatrix();
     glRotatef(legLeftRotationAngle, 1.0f, 0.0f, 0.0f);
-    drawLimb(limbLength, limbWidth, scale * 2.0f / 2.0f, -(scale * 1.0f + limbLength / 2.0f), 0.0f, -90.0f);
+    drawLimb(limbLength, limbWidth, xOffset, yOffset, zOffset, -90.0f);
+
+    glTranslatef(xOffset, (1.0f * yOffset), zOffset);
+    drawCalf(limbLength, limbWidth, 90.0f + forearmRotationAngle);
+
     glPopMatrix();
 }
 
 void Simple3DCharacter::drawRightLeg() const
 {
+    float xOffset = -scale * 2.0f / 2.0f;
+    float yOffset = -(scale * 1.0f + limbLength / 2.0f);
+    float zOffset = 0.0f;
+    float forearmRotationAngle = legRightRotationAngle > 0.0f ? legRightRotationAngle * -2.0f : 0.0f;
+
     glPushMatrix();
     glRotatef(legRightRotationAngle, 1.0f, 0.0f, 0.0f);
-    drawLimb(limbLength, limbWidth, -scale * 2.0f / 2.0f, -(scale * 1.0f + limbLength / 2.0f), 0.0f, -90.0f);
+    drawLimb(limbLength, limbWidth, xOffset, yOffset, zOffset, -90.0f);
+
+    glTranslatef(xOffset, (1.0f * yOffset), zOffset);
+    drawCalf(limbLength, limbWidth, 90.0f + forearmRotationAngle);
+
     glPopMatrix();
 }
 
 void Simple3DCharacter::drawLimb(float length, float width, float xOffset, float yOffset, float zOffset, float rotationAngle) const
 {
+    glColor3f(0.7f, 0.7f, 0.7f);
+
     glPushMatrix();
     glTranslatef(xOffset, yOffset, zOffset);
 
     glRotatef(rotationAngle, 1.0f, 0.0f, 0.0f);
-    glColor3f(0.7f, 0.7f, 0.7f);
     drawCylinder(width, length, 10, 10);
     glPopMatrix();
 }
@@ -291,7 +321,7 @@ void Simple3DCharacter::draw() const
     const float heightZero = limbLength / 2.0f + torsoHeight / 2.0f;
     glPushMatrix();
 
-    glTranslatef(posX, posY + heightZero, posZ);
+    glTranslatef(posX, posY + heightZero + limbLength, posZ);
     glRotatef(rotationAngleCharacter, 0.0f, 1.0f, 0.0f);
     drawTorso();
     drawHead();

@@ -77,6 +77,7 @@ private:
     void drawLeftLeg() const;
     void drawRightLeg() const;
     void drawForearm(float length, float width, float rotationAngle) const;
+    void drawCalf(float length, float width, float rotationAngle) const;
     void drawTorso() const;
     void drawHead() const;
     void drawLimbsWithDetails() const;
