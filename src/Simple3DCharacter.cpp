@@ -194,57 +194,27 @@ void Simple3DCharacter::drawRightArm() const
 {
     float xOffset = -(scale * 2.0f / 2.0f + 1.0f);
     float yOffset = scale * 1.0f + limbLength / 2.0f - 0.2f * limbLength;
+    float forearmRotationAngle = armRightRotationAngle < 0.0f ? fabs(armRightRotationAngle) * 2.0f : 0.0f;
 
     glPushMatrix();
-
-    // Rotacionando o cilindro
     glTranslatef(0.0f, (limbLength / 2.0f), 0.0f);
     glRotatef(armRightRotationAngle, 1.0f, 0.0f, 0.0f);
     glTranslatef(0.0f, -(limbLength / 2.0f), 0.0f);
 
     drawLimb(limbLength, limbWidth, xOffset, yOffset, 0.0f, 90.0f);
 
-    // glTranslatef(0.0f, (limbLength), 0.0f);
-    // glRotatef(armRightRotationAngle, 1.0f, 0.0f, 0.0f);
-    // glTranslatef(0.0f, -(limbLength), 0.0f);
-
-    drawForearm(limbLength, limbWidth, xOffset, -1.0f * yOffset, 0.0f, armRightRotationAngle);
+    glTranslatef(xOffset, -1.0f * yOffset, 0.0f);
+    drawForearm(limbLength, limbWidth, forearmRotationAngle + 90.0f);
     glPopMatrix();
 }
 
-void Simple3DCharacter::drawForearm(float length, float width, float xOffset, float yOffset, float zOffset, float rotationAngle) const
+void Simple3DCharacter::drawForearm(float length, float width, float rotationAngle) const
 {
-    float newAngle = (rotationAngle + 5.0f) * (10.0f / (5.0f - (-5.0f)));
-
-    glPointSize(10.0f);          // Tamanho do ponto para fácil visualização
-    glColor3f(1.0f, 0.0f, 0.0f); // Vermelho para o ponto inicial
-    glBegin(GL_POINTS);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glEnd();
-
     glPushMatrix();
-    glTranslatef(xOffset, yOffset, zOffset);
-
-    glColor3f(0.0f, 1.0f, 0.0f); // Verde para o ponto após a translação
-    glBegin(GL_POINTS);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glEnd();
-
-    glTranslatef(0.0f, (length), 0.0f);
-    glRotatef(newAngle, 1.0f, 0.0f, 0.0f);
-    glTranslatef(0.0f, -(length), 0.0f);
-
-    glColor3f(0.0f, 0.0f, 1.0f); // Azul para o ponto final
-    glBegin(GL_POINTS);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glEnd();
-
     glColor3f(0.7f, 0.7f, 0.7f);
 
-    glPushMatrix();
-    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+    glRotatef(rotationAngle, 1.0f, 0.0f, 0.0f);
     drawCylinder(width, length, 10, 10);
-    glPopMatrix();
 
     glPopMatrix();
 }
