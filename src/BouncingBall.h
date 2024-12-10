@@ -23,6 +23,7 @@ public:
     void update(float deltaTime, const Terrain &terrain);
 
     void setVelocity(float vx, float vy, float vz);
+    void setPosition(float x, float y, float z);
 
     float getPosX() const { return posX; }
     float getPosY() const { return posY; }

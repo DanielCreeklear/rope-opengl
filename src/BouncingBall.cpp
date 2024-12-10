@@ -41,3 +41,10 @@ void BouncingBall::setVelocity(float vx, float vy, float vz)
     velocityY = vy;
     velocityZ = vz;
 }
+
+void BouncingBall::setPosition(float x, float y, float z)
+{
+    posX = x;
+    posY = y;
+    posZ = z;
+}
