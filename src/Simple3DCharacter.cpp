@@ -181,12 +181,17 @@ void Simple3DCharacter::drawLeftArm() const
 {
     float xOffset = scale * 2.0f / 2.0f + 1.0f;
     float yOffset = scale * 1.0f + limbLength / 2.0f - 0.2f * limbLength;
+    float forearmRotationAngle = armLeftRotationAngle < 0.0f ? fabs(armRightRotationAngle) * 2.0f : 0.0f;
 
     glPushMatrix();
     glTranslatef(0.0f, (limbLength / 2.0f), 0.0f);
     glRotatef(armLeftRotationAngle, 1.0f, 0.0f, 0.0f);
     glTranslatef(0.0f, -(limbLength / 2.0f), 0.0f);
+
     drawLimb(limbLength, limbWidth, xOffset, yOffset, 0.0f, 90.0f);
+
+    glTranslatef(xOffset, -1.0f * yOffset, 0.0f);
+    drawForearm(limbLength, limbWidth, forearmRotationAngle + 90.0f);
     glPopMatrix();
 }
 
