@@ -7,6 +7,7 @@
 #include "Terrain.h"
 #include "SolidCube.h"
 #include <algorithm>
+#include <iostream>
 
 Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth)
     : scale(scale), torsoHeight(torsoHeight), headRadius(headRadius), limbLength(limbLength), limbWidth(limbWidth),
@@ -26,20 +27,24 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
 void Simple3DCharacter::loadTexture(const char *filename, GLuint *textureID)
 {
     int width, height, nrChannels;
-    unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, STBI_rgb_alpha);
 
-    if (data)
+    if (!data)
     {
-        glGenTextures(1, textureID);
-        glBindTexture(GL_TEXTURE_2D, *textureID);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        stbi_image_free(data);
+        std::cerr << "Erro ao carregar a textura!" << std::endl;
+        return;
     }
+
+    glGenTextures(1, textureID);
+    glBindTexture(GL_TEXTURE_2D, *textureID);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    stbi_image_free(data);
 }
 
 void Simple3DCharacter::drawHead() const
@@ -62,58 +67,71 @@ void Simple3DCharacter::drawTorso() const
     glPushMatrix();
     glTranslatef(0.0f, torsoHeight / 2.0f, 0.0f);
     glRotatef(torsoRotationAngle, 0.0f, 1.0f, 0.0f);
-    glColor3f(0.5f, 0.5f, 0.5f);
+    // glColor3f(0.5f, 0.5f, 0.5f);
 
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureIDTorso);
+    if (textureIDTorso)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, textureIDTorso);
+    }
+    else
+    {
+        glDisable(GL_TEXTURE_2D);
+    }
+
+    const float halfHeight = torsoHeight / 2.0f;
+
+    const float vertices[8][3] = {
+        {-halfHeight, -halfHeight, -halfHeight},
+        {halfHeight, -halfHeight, -halfHeight},
+        {halfHeight, halfHeight, -halfHeight},
+        {-halfHeight, halfHeight, -halfHeight},
+        {-halfHeight, -halfHeight, halfHeight},
+        {halfHeight, -halfHeight, halfHeight},
+        {halfHeight, halfHeight, halfHeight},
+        {-halfHeight, halfHeight, halfHeight}};
+
+    const int faces[6][4] = {
+        {4, 5, 6, 7},
+        {0, 1, 2, 3},
+        {0, 4, 7, 3},
+        {1, 5, 6, 2},
+        {3, 2, 6, 7},
+        {0, 1, 5, 4}};
+
+    const float normals[6][3] = {
+        {0.0f, 0.0f, 1.0f},
+        {0.0f, 0.0f, -1.0f},
+        {-1.0f, 0.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f}};
+
+    const float texCoords[6][4][2] = {
+        {{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}},
+        {{1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}},
+        {{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}},
+        {{1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}},
+        {{0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}}};
 
     glBegin(GL_QUADS);
-
-    // Face frontal
-    glNormal3f(0.0f, 0.0f, 1.0f);
-    drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
-                 torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
-                 torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
-                 -torsoHeight / 2, torsoHeight / 2, torsoHeight / 2);
-
-    // Face traseira
-    glNormal3f(0.0f, 0.0f, -1.0f);
-    drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
-                 torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
-                 torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2,
-                 -torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2);
-
-    // Face esquerda
-    glNormal3f(-1.0f, 0.0f, 0.0f);
-    drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
-                 -torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
-                 -torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
-                 -torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2);
-
-    // Face direita
-    glNormal3f(1.0f, 0.0f, 0.0f);
-    drawQuadFace(torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
-                 torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
-                 torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
-                 torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2);
-
-    // Face superior
-    glNormal3f(0.0f, 1.0f, 0.0f);
-    drawQuadFace(-torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2,
-                 torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2,
-                 torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
-                 -torsoHeight / 2, torsoHeight / 2, torsoHeight / 2);
-
-    // Face inferior
-    glNormal3f(0.0f, -1.0f, 0.0f);
-    drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
-                 torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
-                 torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
-                 -torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2);
-
+    for (int i = 0; i < 6; ++i)
+    {
+        glNormal3fv(normals[i]);
+        for (int j = 0; j < 4; ++j)
+        {
+            glTexCoord2fv(texCoords[i][j]);
+            glVertex3fv(vertices[faces[i][j]]);
+        }
+    }
     glEnd();
 
-    glDisable(GL_TEXTURE_2D);
+    if (textureIDTorso)
+    {
+        glDisable(GL_TEXTURE_2D);
+    }
+
     glPopMatrix();
 }
 
