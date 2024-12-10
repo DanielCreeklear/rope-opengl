@@ -20,26 +20,24 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
     movement = new Movement(10.0f);
     posY = 10.0f;
 
-    loadTexture("pelo.png", textureIDTorso);
+    loadTexture("src/pelo.png", &textureIDTorso);
 }
 
-void Simple3DCharacter::loadTexture(const char* filename, GLuint* textureID)
+void Simple3DCharacter::loadTexture(const char *filename, GLuint *textureID)
 {
     int width, height, nrChannels;
-    unsigned char *data = stbi_load(filename, &width, &height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
 
     if (data)
     {
         glGenTextures(1, textureID);
-        glBindTExture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
+        glBindTexture(GL_TEXTURE_2D, *textureID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMA_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         stbi_image_free(data);
     }
 }
@@ -69,36 +67,50 @@ void Simple3DCharacter::drawTorso() const
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textureIDTorso);
 
-    glBegin(GLU_BEGIN);    
+    glBegin(GL_QUADS);
+
+    // Face frontal
+    glNormal3f(0.0f, 0.0f, 1.0f);
     drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
                  torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
                  torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
                  -torsoHeight / 2, torsoHeight / 2, torsoHeight / 2);
-    
+
+    // Face traseira
+    glNormal3f(0.0f, 0.0f, -1.0f);
     drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
                  torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
                  torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2,
                  -torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2);
-    
+
+    // Face esquerda
+    glNormal3f(-1.0f, 0.0f, 0.0f);
     drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
                  -torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
                  -torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
                  -torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2);
-    
+
+    // Face direita
+    glNormal3f(1.0f, 0.0f, 0.0f);
     drawQuadFace(torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
                  torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
                  torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
                  torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2);
-    
+
+    // Face superior
+    glNormal3f(0.0f, 1.0f, 0.0f);
     drawQuadFace(-torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2,
                  torsoHeight / 2, torsoHeight / 2, -torsoHeight / 2,
                  torsoHeight / 2, torsoHeight / 2, torsoHeight / 2,
                  -torsoHeight / 2, torsoHeight / 2, torsoHeight / 2);
-    
+
+    // Face inferior
+    glNormal3f(0.0f, -1.0f, 0.0f);
     drawQuadFace(-torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
                  torsoHeight / 2, -torsoHeight / 2, -torsoHeight / 2,
                  torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2,
                  -torsoHeight / 2, -torsoHeight / 2, torsoHeight / 2);
+
     glEnd();
 
     glDisable(GL_TEXTURE_2D);

@@ -1,3 +1,4 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include <GL/glut.h>
 #include <GL/freeglut_ext.h>
 #include <cmath>
@@ -7,13 +8,17 @@
 #include "AnimatedFigure.h"
 #include "Simple3DCharacter.h"
 #include "Terrain.h"
+#include "BouncingBall.h"
+#include "DebugTexture.h"
 
 Camera camera;
 Light light;
 Simple3DCharacter character(1.0f, 3.0f, 1.0f, 5.0f, 0.3f);
+BouncingBall ball(1.0f, 5.0f, 20.0f, 5.0f);
+
+DebugTexture debugTex;
 
 float lastFrameTime = 0.0f;
-float time = 0.0f;
 
 const float cameraOffsetX = 0.0f;
 const float cameraOffsetY = 10.0f;
@@ -33,6 +38,12 @@ void init()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
+    if (!debugTex.loadTexture("src/pelo.jpg"))
+    {
+        std::cerr << "Erro ao carregar a textura!" << std::endl;
+        exit(1);
+    }
+
     light.initialize();
     camera.setup();
 
@@ -51,6 +62,9 @@ void display()
     mainTerrain->draw();
     drawAxes();
     character.draw();
+    ball.draw();
+
+    debugTex.renderTextureQuad();
 
     glutSwapBuffers();
 }
@@ -64,6 +78,7 @@ void update(int value)
     lastFrameTime = currentFrameTime;
 
     character.update(deltaTime, *mainTerrain);
+    ball.update(deltaTime, *mainTerrain);
 
     glutPostRedisplay();
 

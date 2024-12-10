@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "g++",
       "args": [
-        "-Wall",
+        "-w",
         "-Iinclude",
         "-g",
         "src/*.cpp",
