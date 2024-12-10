@@ -190,7 +190,7 @@ void Simple3DCharacter::drawLeftArm() const
 
     drawLimb(limbLength, limbWidth, xOffset, yOffset, 0.0f, 90.0f);
 
-    glTranslatef(xOffset, -1.0f * yOffset, 0.0f);
+    glTranslatef(xOffset, (-1.0f * yOffset) / 2.0f, 0.0f);
     drawForearm(limbLength, limbWidth, forearmRotationAngle + 90.0f);
     glPopMatrix();
 }
@@ -208,7 +208,7 @@ void Simple3DCharacter::drawRightArm() const
 
     drawLimb(limbLength, limbWidth, xOffset, yOffset, 0.0f, 90.0f);
 
-    glTranslatef(xOffset, -1.0f * yOffset, 0.0f);
+    glTranslatef(xOffset, (-1.0f * yOffset) / 2.0f, 0.0f);
     drawForearm(limbLength, limbWidth, forearmRotationAngle + 90.0f);
     glPopMatrix();
 }
