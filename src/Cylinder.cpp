@@ -5,6 +5,7 @@ void drawCylinder(float radius, float height, int slices, int stacks)
 {
     GLUquadric *quadric = gluNewQuadric();
 
+    glColor3b(1.0f, 1.0f, 1.0f);
     glPushMatrix();
     gluDisk(quadric, 0.0f, radius, slices, stacks);
     glPopMatrix();

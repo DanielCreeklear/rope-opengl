@@ -70,6 +70,8 @@ private:
     Movement *movement;
 
     GLuint textureIDTorso;
+    GLuint textureIDHead;
+    GLuint textureIDLimb;
     GLuint textureIds[3];
 
     void drawLeftArm() const;
@@ -82,6 +84,8 @@ private:
     void drawHead() const;
     void drawLimbsWithDetails() const;
     void drawLimb(float length, float width, float xOffset, float yOffset, float zOffset, float rotationAngle) const;
+    void drawTexturedCylinder(float radius, float height, int slices, int stacks) const;
+
     void drawAdditionalComponents() const;
     void setMaterial(const float ambient[4], const float diffuse[4], const float specular[4], float shininess) const;
 

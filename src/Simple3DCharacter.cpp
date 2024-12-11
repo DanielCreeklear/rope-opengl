@@ -24,7 +24,8 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
 
 void Simple3DCharacter::init()
 {
-    loadTexture("src/pelo.png", &textureIDTorso);
+    loadTexture("src/torso.png", &textureIDTorso);
+    loadTexture("src/pelo.png", &textureIDHead);
 }
 
 void Simple3DCharacter::loadTexture(const char *filename, GLuint *textureID)
@@ -137,12 +138,18 @@ void Simple3DCharacter::drawTorso() const
         {0.0f, -1.0f, 0.0f}};
 
     const float texCoords[6][4][2] = {
-        {{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}},
-        {{1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}},
-        {{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}},
-        {{1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}},
-        {{0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}}};
+        // Front face (costas)
+        {{0.75f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.5f}, {0.75f, 0.5f}},
+        // Back face (terno)
+        {{0.25f, 1.0f}, {0.75f, 1.0f}, {0.75f, 0.5f}, {0.25f, 0.5f}},
+        // Left face (lateral esquerda)
+        {{0.0f, 0.0f}, {0.25f, 0.0f}, {0.25f, 0.5f}, {0.0f, 0.5f}},
+        // Right face (lateral direita)
+        {{0.75f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.5f}, {0.75f, 0.5f}},
+        // Top face (superior)
+        {{0.25f, 0.0f}, {0.75f, 0.0f}, {0.75f, 0.5f}, {0.25f, 0.5f}},
+        // Bottom face (inferior)
+        {{0.0f, 0.5f}, {0.25f, 0.5f}, {0.25f, 1.0f}, {0.0f, 1.0f}}};
 
     glBegin(GL_QUADS);
     for (int i = 0; i < 6; ++i)
@@ -271,7 +278,12 @@ void Simple3DCharacter::drawRightLeg() const
 
 void Simple3DCharacter::drawLimb(float length, float width, float xOffset, float yOffset, float zOffset, float rotationAngle) const
 {
-    glColor3f(0.7f, 0.7f, 0.7f);
+    const float ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    const float diffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
+    const float specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    const float shininess = 32.0f;
+
+    setMaterial(ambient, diffuse, specular, shininess);
 
     glPushMatrix();
     glTranslatef(xOffset, yOffset, zOffset);
@@ -280,6 +292,7 @@ void Simple3DCharacter::drawLimb(float length, float width, float xOffset, float
     drawCylinder(width, length, 10, 10);
     glPopMatrix();
 }
+
 
 void Simple3DCharacter::drawAdditionalComponents() const
 {
