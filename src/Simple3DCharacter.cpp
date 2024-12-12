@@ -45,7 +45,6 @@ void Simple3DCharacter::loadTexture(const char *filename, GLuint *textureID)
     glGenTextures(1, textureID);
     if (textureID == 0)
     {
-        std::cerr << "Erro ao gerar o Texture ID!" << std::endl;
         stbi_image_free(data);
         return;
     }
@@ -59,8 +58,6 @@ void Simple3DCharacter::loadTexture(const char *filename, GLuint *textureID)
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);
-
-    std::cout << "Texture ID " << *textureID << " carregado e vinculado com sucesso." << std::endl;
 }
 
 void Simple3DCharacter::setMaterial(const float ambient[4], const float diffuse[4], const float specular[4], float shininess) const
@@ -75,38 +72,40 @@ void Simple3DCharacter::drawHead() const
 {
     glPushMatrix();
 
-    // Desenhando a cabeça (esfera)
     glTranslatef(0.0f, torsoHeight + headRadius, 0.0f);
-    glColor3f(0.8f, 0.8f, 0.8f); // Cor base para a cabeça
 
-    // Definindo as coordenadas de textura para a esfera
-    glEnable(GL_TEXTURE_2D);                     // Habilita texturas
-    glBindTexture(GL_TEXTURE_2D, textureIDHead); // Assumindo que 'textureID' é o ID da textura da cabeça
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureIDHead);
 
-    // Setando material para a cabeça (ambient, diffuse, specular)
     float ambientHead[4] = {0.2f, 0.2f, 0.2f, 1.0f};
     float diffuseHead[4] = {0.8f, 0.8f, 0.8f, 1.0f};
     float specularHead[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     setMaterial(ambientHead, diffuseHead, specularHead, 32.0f);
 
-    glutSolidSphere(headRadius, 10, 10);
+    glPushMatrix();
+    glRotatef(50.0f, 1.0f, 0.0f, 0.0f);
+    GLUquadric *quadric = gluNewQuadric();
+    gluQuadricTexture(quadric, GL_TRUE);
+    gluQuadricNormals(quadric, GLU_SMOOTH);
 
-    glDisable(GL_TEXTURE_2D); // Desabilita texturas para o próximo objeto
+    gluSphere(quadric, headRadius, 50, 50);
+    glPopMatrix();
 
-    // Desenhando o cone (pescoço ou parte inferior da cabeça)
-    glTranslatef(0.0f, headRadius, 0.0f);
-    glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-    glColor3f(1.0f, 0.0f, 0.0f); // Cor base para o cone
+    gluDeleteQuadric(quadric);
+    glDisable(GL_TEXTURE_2D);
 
-    // Definindo coordenadas de textura para o cone
-
-    // Setando material para o cone
+    glColor3f(1.0f, 0.0f, 0.0f);
     float ambientCone[4] = {0.3f, 0.1f, 0.1f, 1.0f};
     float diffuseCone[4] = {0.7f, 0.0f, 0.0f, 1.0f};
     float specularCone[4] = {0.9f, 0.9f, 0.9f, 1.0f};
     setMaterial(ambientCone, diffuseCone, specularCone, 16.0f);
 
+    glPushMatrix();
+    glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+    glTranslatef(0.0f, 0.0f, headRadius);
+
     glutSolidCone(0.5f, headRadius * 1.5f, 10, 10);
+    glPopMatrix();
 
     glPopMatrix();
 }
@@ -214,7 +213,7 @@ void Simple3DCharacter::drawLeftArm() const
 {
     float xOffset = scale * 2.0f / 2.0f + 1.0f;
     float yOffset = scale * 1.0f + limbLength / 2.0f - 0.2f * limbLength;
-    float forearmRotationAngle = armLeftRotationAngle < 0.0f ? fabs(armRightRotationAngle) * 2.0f : 0.0f;
+    float forearmRotationAngle = armLeftRotationAngle < 0.0f ? fabs(armLeftRotationAngle) * 2.0f : 0.0f;
 
     glPushMatrix();
     glTranslatef(0.0f, (limbLength / 2.0f), 0.0f);

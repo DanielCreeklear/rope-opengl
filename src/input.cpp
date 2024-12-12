@@ -123,21 +123,21 @@ void keyboardUp(unsigned char key, int x, int y)
     {
     case 'w':
         Globals::character.setMoveForward(false);
+        Globals::character.setIdle(true);
         break;
     case 's':
         Globals::character.setMoveBackward(false);
+        Globals::character.setIdle(true);
         break;
     case 'a':
         Globals::character.setMoveLeft(false);
+        Globals::character.setIdle(true);
         break;
     case 'd':
         Globals::character.setMoveRight(false);
+        Globals::character.setIdle(true);
         break;
     case ' ':
-    case 'r':
-    case 'f':
-    case 't':
-    case 'h':
         Globals::character.setIdle(true);
         break;
     default:
