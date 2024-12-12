@@ -1,4 +1,3 @@
-#define STB_IMAGE_IMPLEMENTATION
 #include <GL/glut.h>
 #include <GL/freeglut_ext.h>
 #include <cmath>

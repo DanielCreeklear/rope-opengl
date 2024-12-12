@@ -72,5 +72,5 @@ void BouncingBall::setMaterial(const float ambient[4], const float diffuse[4], c
 
 void BouncingBall::init()
 {
-    // loadTexture("src/bola.png", &textureID);
+    loadTexture("src/bola.png", &textureID);
 }

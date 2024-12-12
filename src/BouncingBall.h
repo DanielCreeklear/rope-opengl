@@ -2,7 +2,7 @@
 #define BOUNCINGBALL_H
 
 #include <GL/glut.h>
-// #include "Texture.h"
+#include "Texture.h"
 
 class Terrain;
 class Physics;

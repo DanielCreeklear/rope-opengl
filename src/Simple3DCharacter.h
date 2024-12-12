@@ -3,7 +3,7 @@
 
 #include <GL/glut.h>
 #include <cmath>
-#include "stb_image.h"
+#include "Texture.h"
 
 class Animator;
 class Physics;
@@ -34,7 +34,6 @@ public:
     Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth);
     void draw() const;
     void update(float deltaTime, const Terrain &terrain);
-    void loadTexture(const char *filename, GLuint *textureID);
 
     void startWalking();
     void stopWalking();
