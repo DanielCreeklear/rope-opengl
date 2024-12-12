@@ -8,8 +8,15 @@ void Block::draw() const
     glPushMatrix();
     glTranslatef(x, y, z);
 
-    GLfloat materialColor[] = {color[0], color[1], color[2], 1.0f};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, materialColor);
+    GLfloat materialAmbient[] = {color[0] * 0.3f, color[1] * 0.3f, color[2] * 0.3f, 1.0f};
+    GLfloat materialDiffuse[] = {color[0], color[1], color[2], 1.0f};
+    GLfloat materialSpecular[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    GLfloat materialShininess = 32.0f;
+
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialAmbient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialDiffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialSpecular);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, materialShininess);
 
     glBegin(GL_QUADS);
 
