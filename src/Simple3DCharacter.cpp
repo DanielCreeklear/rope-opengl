@@ -163,17 +163,11 @@ void Simple3DCharacter::drawTorso() const
         {0.0f, -1.0f, 0.0f}};
 
     const float texCoords[6][4][2] = {
-        // Front face (costas)
         {{0.75f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.5f}, {0.75f, 0.5f}},
-        // Back face (terno)
         {{0.25f, 1.0f}, {0.75f, 1.0f}, {0.75f, 0.5f}, {0.25f, 0.5f}},
-        // Left face (lateral esquerda)
         {{0.0f, 0.0f}, {0.25f, 0.0f}, {0.25f, 0.5f}, {0.0f, 0.5f}},
-        // Right face (lateral direita)
         {{0.75f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.5f}, {0.75f, 0.5f}},
-        // Top face (superior)
         {{0.25f, 0.0f}, {0.75f, 0.0f}, {0.75f, 0.5f}, {0.25f, 0.5f}},
-        // Bottom face (inferior)
         {{0.0f, 0.5f}, {0.25f, 0.5f}, {0.25f, 1.0f}, {0.0f, 1.0f}}};
 
     glBegin(GL_QUADS);
