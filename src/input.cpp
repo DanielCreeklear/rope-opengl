@@ -71,6 +71,29 @@ void mouseButton(int button, int state, int x, int y)
     Globals::camera.mouseButton(button, state, x, y);
 }
 
+void keyboardSpecial(int key, int x, int y)
+{
+    const float lightMoveSpeed = 0.5f;
+    switch (key)
+    {
+    case GLUT_KEY_UP:
+        Globals::light.moveLight(0.0f, lightMoveSpeed, 0.0f);
+        break;
+    case GLUT_KEY_DOWN:
+        Globals::light.moveLight(0.0f, -lightMoveSpeed, 0.0f);
+        break;
+    case GLUT_KEY_LEFT:
+        Globals::light.moveLight(-lightMoveSpeed, 0.0f, 0.0f);
+        break;
+    case GLUT_KEY_RIGHT:
+        Globals::light.moveLight(lightMoveSpeed, 0.0f, 0.0f);
+        break;
+    default:
+        break;
+    }
+    glutPostRedisplay();
+}
+
 void keyboard(unsigned char key, int x, int y)
 {
     const float moveSpeed = 1.0f;
@@ -108,6 +131,12 @@ void keyboard(unsigned char key, int x, int y)
     case 'g':
         Globals::character.setIdle(false);
         Globals::character.increaseAngleRightArm(-moveSpeed);
+        break;
+    case '+':
+        Globals::light.adjustBrightness(0.5f, 0.5f);
+        break;
+    case '-':
+        Globals::light.adjustBrightness(-0.5f, -0.5f);
         break;
     case 27:
         exit(0);

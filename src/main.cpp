@@ -28,6 +28,7 @@ void init()
     Globals::camera.setup();
 
     Globals::mainTerrain = createTerrain(0.0f);
+    Globals::ball.init();
     Globals::character.init();
     Globals::character.draw();
 }
@@ -44,6 +45,7 @@ void display()
     drawAxes();
     Globals::character.draw();
     Globals::ball.draw();
+    Globals::light.drawLightIndicator();
 
     glutSwapBuffers();
 }
@@ -98,6 +100,7 @@ int main(int argc, char **argv)
     glutPassiveMotionFunc(mouseMotion);
     glutMouseFunc(mouseButton);
     glutKeyboardFunc(keyboard);
+    glutSpecialFunc(keyboardSpecial);
     glutKeyboardUpFunc(keyboardUp);
 
     glutMouseWheelFunc([](int button, int direction, int x, int y)
