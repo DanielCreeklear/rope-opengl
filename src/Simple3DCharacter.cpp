@@ -415,22 +415,34 @@ float Simple3DCharacter::getFootHeight() const
 
 void Simple3DCharacter::increaseAngleLeftArm(float angle)
 {
-    armLeftRotationAngle += angle;
+    if (angle + armLeftRotationAngle < 90.0f && angle + armLeftRotationAngle > -90.0f)
+    {
+        armLeftRotationAngle += angle;
+    }
 }
 
 void Simple3DCharacter::increaseAngleRightArm(float angle)
 {
-    armRightRotationAngle += angle;
+    if (angle + armRightRotationAngle < 90.0f && angle + armRightRotationAngle > -90.0f)
+    {
+        armRightRotationAngle += angle;
+    }
 }
 
 void Simple3DCharacter::increaseAngleLeftLeg(float angle)
 {
-    legLeftRotationAngle += angle;
+    if (angle + legLeftRotationAngle < 90.0f && angle + legLeftRotationAngle > -90.0f)
+    {
+        legLeftRotationAngle += angle;
+    }
 }
 
 void Simple3DCharacter::increaseAngleRightLeg(float angle)
 {
-    legRightRotationAngle += angle;
+    if (angle + legRightRotationAngle < 90.0f && angle + legRightRotationAngle > -90.0f)
+    {
+        legRightRotationAngle += angle;
+    }
 }
 
 void Simple3DCharacter::setIdle(bool state)
