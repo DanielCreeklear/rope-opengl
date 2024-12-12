@@ -51,6 +51,13 @@ public:
     void setMoveLeft(bool value);
     void setMoveRight(bool value);
 
+    void increaseAngleLeftArm(float angle);
+    void increaseAngleRightArm(float angle);
+    void increaseAngleLeftLeg(float angle);
+    void increaseAngleRightLeg(float angle);
+
+    void setIdle(bool state);
+    
     void init();
 
 private:
@@ -63,7 +70,7 @@ private:
 
     float posX, posY, posZ;
 
-    bool isWalking;
+    bool isWalking, enableIdle;
 
     Animator *animator;
     Physics *physics;

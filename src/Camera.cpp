@@ -26,9 +26,6 @@ void Camera::applyViewTransform(float characterX, float characterY, float charac
     posY = characterY + offsetY;
     posZ = characterZ + offsetZ;
 
-    std::cout << "Camera offset: (" << offsetX << ", " << offsetY << ", " << offsetZ << ")" << std::endl;
-    // std::cout << "Camera pos: (" << posX << ", " << posY << ", " << posZ << ")" << std::endl;
-
     gluLookAt(posX, posY, posZ, characterX, characterY, characterZ, 0.0f, 1.0f, 0.0f);
 }
 

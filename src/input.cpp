@@ -63,7 +63,6 @@ void mouseButton(int button, int state, int x, int y)
         if (state == GLUT_DOWN)
         {
             Globals::isButtonPressed = !Globals::isButtonPressed;
-            
         }
     }
 
@@ -74,7 +73,7 @@ void mouseButton(int button, int state, int x, int y)
 
 void keyboard(unsigned char key, int x, int y)
 {
-    const float moveSpeed = 0.1f;
+    const float moveSpeed = 1.0f;
 
     switch (key)
     {
@@ -91,7 +90,24 @@ void keyboard(unsigned char key, int x, int y)
         Globals::character.setMoveRight(true);
         break;
     case ' ':
+        Globals::character.setIdle(false);
         Globals::character.jump();
+        break;
+    case 'r':
+        Globals::character.setIdle(false);
+        Globals::character.increaseAngleLeftArm(moveSpeed);
+        break;
+    case 'f':
+        Globals::character.setIdle(false);
+        Globals::character.increaseAngleLeftArm(-moveSpeed);
+        break;
+    case 't':
+        Globals::character.setIdle(false);
+        Globals::character.increaseAngleRightArm(moveSpeed);
+        break;
+    case 'g':
+        Globals::character.setIdle(false);
+        Globals::character.increaseAngleRightArm(-moveSpeed);
         break;
     case 27:
         exit(0);
@@ -116,6 +132,13 @@ void keyboardUp(unsigned char key, int x, int y)
         break;
     case 'd':
         Globals::character.setMoveRight(false);
+        break;
+    case ' ':
+    case 'r':
+    case 'f':
+    case 't':
+    case 'h':
+        Globals::character.setIdle(true);
         break;
     default:
         break;

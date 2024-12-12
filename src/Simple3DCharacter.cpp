@@ -14,7 +14,8 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
       armLeftRotationAngle(0.0f), armRightRotationAngle(0.0f), legLeftRotationAngle(0.0f), legRightRotationAngle(0.0f),
       torsoRotationAngle(0.0f), headRotationAngle(0.0f), directionRightArmRotation(1.0f), directionLeftArmRotation(-1.0f), directionLeftLegRotation(1.0f),
       directionRightLegRotation(-1.0f), directionHeadRotation(1.0f), directionTorsoRotation(1.0f), isWalking(false),
-      moveForward(false), moveBackward(false), moveLeft(false), moveRight(false), posX(0.0f), posZ(0.0f), rotationAngleCharacter(0.0f)
+      moveForward(false), moveBackward(false), moveLeft(false), moveRight(false), posX(0.0f), posZ(0.0f), rotationAngleCharacter(0.0f),
+      enableIdle(true)
 {
     animator = new Animator(this);
     physics = new Physics(-16.8f, 0.8f, 0.0f, 10.0f);
@@ -25,7 +26,7 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
 void Simple3DCharacter::init()
 {
     loadTexture("src/torso.png", &textureIDTorso);
-    loadTexture("src/pelo.png", &textureIDHead);
+    loadTexture("src/head.png", &textureIDHead);
 }
 
 void Simple3DCharacter::loadTexture(const char *filename, GLuint *textureID)
@@ -74,14 +75,39 @@ void Simple3DCharacter::drawHead() const
 {
     glPushMatrix();
 
+    // Desenhando a cabeça (esfera)
     glTranslatef(0.0f, torsoHeight + headRadius, 0.0f);
-    glColor3f(0.8f, 0.8f, 0.8f);
+    glColor3f(0.8f, 0.8f, 0.8f); // Cor base para a cabeça
+
+    // Definindo as coordenadas de textura para a esfera
+    glEnable(GL_TEXTURE_2D);                     // Habilita texturas
+    glBindTexture(GL_TEXTURE_2D, textureIDHead); // Assumindo que 'textureID' é o ID da textura da cabeça
+
+    // Setando material para a cabeça (ambient, diffuse, specular)
+    float ambientHead[4] = {0.2f, 0.2f, 0.2f, 1.0f};
+    float diffuseHead[4] = {0.8f, 0.8f, 0.8f, 1.0f};
+    float specularHead[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    setMaterial(ambientHead, diffuseHead, specularHead, 32.0f);
+
     glutSolidSphere(headRadius, 10, 10);
 
+    glDisable(GL_TEXTURE_2D); // Desabilita texturas para o próximo objeto
+
+    // Desenhando o cone (pescoço ou parte inferior da cabeça)
     glTranslatef(0.0f, headRadius, 0.0f);
     glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-    glColor3f(1.0f, 0.0f, 0.0f);
+    glColor3f(1.0f, 0.0f, 0.0f); // Cor base para o cone
+
+    // Definindo coordenadas de textura para o cone
+
+    // Setando material para o cone
+    float ambientCone[4] = {0.3f, 0.1f, 0.1f, 1.0f};
+    float diffuseCone[4] = {0.7f, 0.0f, 0.0f, 1.0f};
+    float specularCone[4] = {0.9f, 0.9f, 0.9f, 1.0f};
+    setMaterial(ambientCone, diffuseCone, specularCone, 16.0f);
+
     glutSolidCone(0.5f, headRadius * 1.5f, 10, 10);
+
     glPopMatrix();
 }
 
@@ -293,7 +319,6 @@ void Simple3DCharacter::drawLimb(float length, float width, float xOffset, float
     glPopMatrix();
 }
 
-
 void Simple3DCharacter::drawAdditionalComponents() const
 {
     glPushMatrix();
@@ -360,7 +385,10 @@ void Simple3DCharacter::update(float deltaTime, const Terrain &terrain)
         return;
     }
 
-    animator->idleAnimation(deltaTime);
+    if (enableIdle)
+    {
+        animator->idleAnimation(deltaTime);
+    }
 }
 
 float Simple3DCharacter::getPosX()
@@ -383,4 +411,29 @@ float Simple3DCharacter::getFootHeight() const
     float footHeight = (torsoHeight / 2.0f) - limbLength - 0.5f;
 
     return footHeight;
+}
+
+void Simple3DCharacter::increaseAngleLeftArm(float angle)
+{
+    armLeftRotationAngle += angle;
+}
+
+void Simple3DCharacter::increaseAngleRightArm(float angle)
+{
+    armRightRotationAngle += angle;
+}
+
+void Simple3DCharacter::increaseAngleLeftLeg(float angle)
+{
+    legLeftRotationAngle += angle;
+}
+
+void Simple3DCharacter::increaseAngleRightLeg(float angle)
+{
+    legRightRotationAngle += angle;
+}
+
+void Simple3DCharacter::setIdle(bool state)
+{
+    enableIdle = state;
 }
