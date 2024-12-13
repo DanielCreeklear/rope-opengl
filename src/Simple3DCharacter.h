@@ -9,6 +9,7 @@ class Animator;
 class Physics;
 class Movement;
 class Terrain;
+class BouncingBall;
 
 class Simple3DCharacter
 {
@@ -33,7 +34,7 @@ public:
 
     Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth);
     void draw() const;
-    void update(float deltaTime, const Terrain &terrain);
+    void update(float deltaTime, const Terrain &terrain, BouncingBall &ball);
 
     void startWalking();
     void stopWalking();
@@ -59,7 +60,10 @@ public:
     void startCelebration(bool state);
 
     void resetCharacter();
-    
+    void kickBall(BouncingBall &ball);
+    bool checkCollisionWithBall(BouncingBall &ball);
+    float calculateRadius() const;
+
     void init();
 
 private:

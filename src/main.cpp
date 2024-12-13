@@ -58,7 +58,7 @@ void update(int value)
 
     lastFrameTime = currentFrameTime;
 
-    Globals::character.update(deltaTime, *Globals::mainTerrain);
+    Globals::character.update(deltaTime, *Globals::mainTerrain, Globals::ball);
 
     if (Globals::isButtonPressed)
     {

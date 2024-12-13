@@ -13,6 +13,7 @@ private:
     float radius;
     float posX, posY, posZ;
     float velocityX, velocityY, velocityZ;
+    float initialPosX, initialPosY, initialPosZ;
     Physics *physics;
 
     GLuint textureID;
@@ -34,6 +35,10 @@ public:
     float getPosX() const { return posX; }
     float getPosY() const { return posY; }
     float getPosZ() const { return posZ; }
+
+    float getRadius() const { return radius; }
+
+    void restartPosition();
 };
 
 #endif

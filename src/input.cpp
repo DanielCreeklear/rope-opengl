@@ -192,6 +192,7 @@ void menuHandler(int option)
         break;
     case 5:
         Globals::character.resetCharacter();
+        Globals::ball.restartPosition();
         break;
     case 6:
         exit(0);

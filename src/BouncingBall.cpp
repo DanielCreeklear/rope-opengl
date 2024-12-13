@@ -3,7 +3,8 @@
 #include "Terrain.h"
 
 BouncingBall::BouncingBall(float radius, float initialPosX, float initialPosY, float initialPosZ)
-    : radius(radius), posX(initialPosX), posY(initialPosY), posZ(initialPosZ), velocityX(0.0f), velocityY(0.0f), velocityZ(0.0f)
+    : radius(radius), posX(initialPosX), posY(initialPosY), posZ(initialPosZ), velocityX(0.0f), velocityY(0.0f), velocityZ(0.0f),
+      initialPosX(initialPosX), initialPosY(initialPosY), initialPosZ(initialPosZ)
 {
     physics = new Physics(-9.8f, 0.8f, initialPosY, 0.8f);
 }
@@ -37,10 +38,18 @@ void BouncingBall::draw() const
 
 void BouncingBall::update(float deltaTime, const Terrain &terrain)
 {
+    posX += velocityX * deltaTime;
+    posY += velocityY * deltaTime;
+    posZ += velocityZ * deltaTime;
+
     physics->applyPhysics(deltaTime, terrain);
     physics->setCharacterPosition(posX, posZ, terrain);
     physics->handleCollision(deltaTime, terrain);
     posY = physics->getCharacterY() + radius + 0.5f;
+
+    velocityX *= 0.95f;
+    velocityY *= 0.95f;
+    velocityZ *= 0.95f;
 
     if (posY - radius <= terrain.getHeightAtPosition(posX, posZ))
     {
@@ -73,4 +82,14 @@ void BouncingBall::setMaterial(const float ambient[4], const float diffuse[4], c
 void BouncingBall::init()
 {
     loadTexture("src/bola.png", &textureID);
+}
+
+void BouncingBall::restartPosition()
+{
+    posX = initialPosX;
+    posY = initialPosY;
+    posZ = initialPosZ;
+    velocityX = 0.0f;
+    velocityY = 0.0f;
+    velocityZ = 0.0f;
 }

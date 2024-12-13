@@ -5,6 +5,7 @@
 #include "Movement.h"
 #include "Terrain.h"
 #include "SolidCube.h"
+#include "BouncingBall.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -332,13 +333,18 @@ void Simple3DCharacter::draw() const
     glPopMatrix();
 }
 
-void Simple3DCharacter::update(float deltaTime, const Terrain &terrain)
+void Simple3DCharacter::update(float deltaTime, const Terrain &terrain, BouncingBall &ball)
 {
     physics->setCharacterPosition(posX, posZ, terrain);
     physics->applyPhysics(deltaTime, terrain);
     physics->handleCollision(deltaTime, terrain);
     posY = physics->getCharacterY();
     physics->update(deltaTime, terrain);
+
+    if (checkCollisionWithBall(ball))
+    {
+        kickBall(ball);
+    }
 
     if (celebration)
     {
@@ -449,4 +455,33 @@ void Simple3DCharacter::resetCharacter()
     enableIdle = true;
     celebration = false;
     posY = 10.0f;
+}
+
+void Simple3DCharacter::kickBall(BouncingBall &ball)
+{
+    float kickForce = 20.0f;
+    float kickAngle = rotationAngleCharacter;
+
+    float directionX = cos(kickAngle * M_PI / 180.0f);
+    float directionZ = sin(kickAngle * M_PI / 180.0f);
+
+    ball.setVelocity(kickForce * directionX, 5.0f, kickForce * directionZ);
+}
+
+bool Simple3DCharacter::checkCollisionWithBall(BouncingBall &ball)
+{
+    float deltaX = posX - ball.getPosX();
+    float deltaZ = posZ - ball.getPosZ();
+    float distance = sqrt(deltaX * deltaX + deltaZ * deltaZ);
+
+    return distance <= (ball.getRadius() + calculateRadius());
+}
+
+float Simple3DCharacter::calculateRadius() const
+{
+    float radius = headRadius;
+    radius = std::max(radius, limbLength + limbWidth);
+    radius = std::max(radius, limbLength + limbWidth);
+
+    return radius;
 }
