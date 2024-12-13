@@ -57,6 +57,8 @@ public:
 
     void setIdle(bool state);
     void startCelebration(bool state);
+
+    void resetCharacter();
     
     void init();
 

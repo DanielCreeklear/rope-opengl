@@ -423,3 +423,30 @@ void Simple3DCharacter::startCelebration(bool state)
 {
     celebration = state;
 }
+
+void Simple3DCharacter::resetCharacter()
+{
+    armLeftRotationAngle = 0.0f;
+    armRightRotationAngle = 0.0f;
+    legLeftRotationAngle = 0.0f;
+    legRightRotationAngle = 0.0f;
+    torsoRotationAngle = 0.0f;
+    headRotationAngle = 0.0f;
+    directionRightArmRotation = 1.0f;
+    directionLeftArmRotation = -1.0f;
+    directionLeftLegRotation = 1.0f;
+    directionRightLegRotation = -1.0f;
+    directionHeadRotation = 1.0f;
+    directionTorsoRotation = 1.0f;
+    isWalking = false;
+    moveForward = false;
+    moveBackward = false;
+    moveLeft = false;
+    moveRight = false;
+    posX = 0.0f;
+    posZ = 0.0f;
+    rotationAngleCharacter = 0.0f;
+    enableIdle = true;
+    celebration = false;
+    posY = 10.0f;
+}

@@ -191,6 +191,9 @@ void menuHandler(int option)
         Globals::character.startCelebration(false);
         break;
     case 5:
+        Globals::character.resetCharacter();
+        break;
+    case 6:
         exit(0);
         break;
     default:
@@ -205,6 +208,7 @@ void createMenu()
     glutAddMenuEntry("Diminuir Luminosidade", 2);
     glutAddMenuEntry("Iniciar danca", 3);
     glutAddMenuEntry("Parar danca", 4);
-    glutAddMenuEntry("Sair", 5);
+    glutAddMenuEntry("Reiniciar", 5);
+    glutAddMenuEntry("Sair", 6);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
