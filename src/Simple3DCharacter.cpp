@@ -25,7 +25,7 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
 
 void Simple3DCharacter::init()
 {
-    loadTexture("src/torso.png", &textureIDTorso);
+    loadTexture("src/torso2.png", &textureIDTorso);
     loadTexture("src/head.png", &textureIDHead);
 }
 
@@ -132,12 +132,13 @@ void Simple3DCharacter::drawTorso() const
         {0.0f, -1.0f, 0.0f}};
 
     const float texCoords[6][4][2] = {
-        {{0.75f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.5f}, {0.75f, 0.5f}},
-        {{0.25f, 1.0f}, {0.75f, 1.0f}, {0.75f, 0.5f}, {0.25f, 0.5f}},
-        {{0.0f, 0.0f}, {0.25f, 0.0f}, {0.25f, 0.5f}, {0.0f, 0.5f}},
-        {{0.75f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.5f}, {0.75f, 0.5f}},
-        {{0.25f, 0.0f}, {0.75f, 0.0f}, {0.75f, 0.5f}, {0.25f, 0.5f}},
-        {{0.0f, 0.5f}, {0.25f, 0.5f}, {0.25f, 1.0f}, {0.0f, 1.0f}}};
+        {{0.0f, 0.5f}, {1.0f, 0.5f}, {1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.5f}, {1.0f, 0.5f}}, // Face frente
+        {{0.0f, 0.5f}, {1.0f, 0.5f}, {1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{0.0f, 0.5f}, {1.0f, 0.5f}, {1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{0.0f, 0.5f}, {1.0f, 0.5f}, {1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{0.0f, 0.5f}, {1.0f, 0.5f}, {1.0f, 0.0f}, {0.0f, 0.0f}},
+    };
 
     glBegin(GL_QUADS);
     for (int i = 0; i < 6; ++i)
