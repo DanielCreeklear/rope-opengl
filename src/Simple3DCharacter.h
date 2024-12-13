@@ -56,6 +56,7 @@ public:
     void increaseAngleRightLeg(float angle);
 
     void setIdle(bool state);
+    void startCelebration(bool state);
     
     void init();
 
@@ -69,7 +70,7 @@ private:
 
     float posX, posY, posZ;
 
-    bool isWalking, enableIdle;
+    bool isWalking, enableIdle, celebration;
 
     Animator *animator;
     Physics *physics;

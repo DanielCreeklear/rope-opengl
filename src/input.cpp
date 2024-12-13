@@ -185,6 +185,12 @@ void menuHandler(int option)
         Globals::light.adjustBrightness(-0.5f, -0.5f);
         break;
     case 3:
+        Globals::character.startCelebration(true);
+        break;
+    case 4:
+        Globals::character.startCelebration(false);
+        break;
+    case 5:
         exit(0);
         break;
     default:
@@ -197,6 +203,8 @@ void createMenu()
     glutCreateMenu(menuHandler);
     glutAddMenuEntry("Aumentar Luminosidade", 1);
     glutAddMenuEntry("Diminuir Luminosidade", 2);
-    glutAddMenuEntry("Sair", 3);
+    glutAddMenuEntry("Iniciar danca", 3);
+    glutAddMenuEntry("Parar danca", 4);
+    glutAddMenuEntry("Sair", 5);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 }

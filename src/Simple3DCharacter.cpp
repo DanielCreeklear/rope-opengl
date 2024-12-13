@@ -15,7 +15,7 @@ Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headR
       torsoRotationAngle(0.0f), headRotationAngle(0.0f), directionRightArmRotation(1.0f), directionLeftArmRotation(-1.0f), directionLeftLegRotation(1.0f),
       directionRightLegRotation(-1.0f), directionHeadRotation(1.0f), directionTorsoRotation(1.0f), isWalking(false),
       moveForward(false), moveBackward(false), moveLeft(false), moveRight(false), posX(0.0f), posZ(0.0f), rotationAngleCharacter(0.0f),
-      enableIdle(true)
+      enableIdle(true), celebration(false)
 {
     animator = new Animator(this);
     physics = new Physics(-16.8f, 0.8f, 0.0f, 10.0f);
@@ -340,6 +340,12 @@ void Simple3DCharacter::update(float deltaTime, const Terrain &terrain)
     posY = physics->getCharacterY();
     physics->update(deltaTime, terrain);
 
+    if (celebration)
+    {
+        animator->celebrationAnimation(deltaTime);
+        return;
+    }
+
     move(deltaTime);
 
     if (isWalking)
@@ -411,4 +417,9 @@ void Simple3DCharacter::increaseAngleRightLeg(float angle)
 void Simple3DCharacter::setIdle(bool state)
 {
     enableIdle = state;
+}
+
+void Simple3DCharacter::startCelebration(bool state)
+{
+    celebration = state;
 }

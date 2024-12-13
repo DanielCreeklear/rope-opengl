@@ -11,6 +11,7 @@ public:
     void rotateWithLimits(float &angle, float speed, float &direction, float minAngle, float maxAngle, float deltaTime);
     void walkAnimation(float deltaTime);
     void idleAnimation(float deltaTime);
+    void celebrationAnimation(float deltaTime);
 
 private:
     Simple3DCharacter *character;

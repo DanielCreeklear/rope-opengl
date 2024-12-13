@@ -21,6 +21,35 @@ void Animator::rotateWithLimits(float &angle, float speed, float &direction, flo
     angle += speed * direction * deltaTime;
 }
 
+void Animator::celebrationAnimation(float deltaTime)
+{
+    const float velocity = 300.0f;
+    const float armSpeed = 2.0f * velocity; // Velocidade maior para o movimento do braço
+    const float legSpeed = 1.0f * velocity;
+    const float jumpHeight = 10.0f; // Altura do salto
+
+    // Movimento do braço esquerdo
+    const float armMaxAngle = 70.0f; // Maior ângulo para o movimento do braço
+    const float armMinAngle = -70.0f;
+    rotateWithLimits(character->armLeftRotationAngle, armSpeed, character->directionLeftArmRotation, armMinAngle, armMaxAngle, deltaTime);
+
+    // Movimento do braço direito (para manter uma sensação de movimento natural, pode haver um ângulo diferente)
+    const float armRightSpeed = 1.0f * velocity;
+    const float armRightMaxAngle = 50.0f;
+    const float armRightMinAngle = -50.0f;
+    rotateWithLimits(character->armRightRotationAngle, armRightSpeed, character->directionRightArmRotation, armRightMinAngle, armRightMaxAngle, deltaTime);
+
+    // Movimento das pernas durante o salto
+    rotateWithLimits(character->legLeftRotationAngle, legSpeed, character->directionLeftLegRotation, -jumpHeight, jumpHeight, deltaTime);
+    rotateWithLimits(character->legRightRotationAngle, legSpeed, character->directionRightLegRotation, -jumpHeight, jumpHeight, deltaTime);
+
+    // Movimento do corpo para simular o salto
+    float torsoOscillationSpeed = 0.5f * velocity;
+    float torsoMaxAngle = 15.0f;
+    float torsoMinAngle = -15.0f;
+    rotateWithLimits(character->torsoRotationAngle, torsoOscillationSpeed, character->directionTorsoRotation, torsoMinAngle, torsoMaxAngle, deltaTime);
+}
+
 void Animator::walkAnimation(float deltaTime)
 {
     const float velocity = 300.0f;
