@@ -460,7 +460,8 @@ void Simple3DCharacter::resetCharacter()
 void Simple3DCharacter::kickBall(BouncingBall &ball)
 {
     float kickForce = 20.0f;
-    float kickAngle = rotationAngleCharacter;
+    float kickAngle = rotationAngleCharacter + 90.0f;
+    std::cout << "Angulo: " << kickAngle << std::endl;
 
     float directionX = cos(kickAngle * M_PI / 180.0f);
     float directionZ = sin(kickAngle * M_PI / 180.0f);
