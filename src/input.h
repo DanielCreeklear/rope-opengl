@@ -9,5 +9,7 @@ void mouseButton(int button, int state, int x, int y);
 void keyboard(unsigned char key, int x, int y);
 void keyboardUp(unsigned char key, int x, int y);
 void keyboardSpecial(int key, int x, int y);
+void menuHandler(int option);
+void createMenu();
 
 #endif

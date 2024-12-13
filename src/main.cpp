@@ -95,6 +95,8 @@ int main(int argc, char **argv)
     glutInitWindowSize(800, 600);
     glutCreateWindow("Rope OpenGL");
 
+    createMenu();
+
     init();
 
     glutPassiveMotionFunc(mouseMotion);

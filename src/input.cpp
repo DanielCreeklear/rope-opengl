@@ -173,3 +173,30 @@ void keyboardUp(unsigned char key, int x, int y)
         break;
     }
 }
+
+void menuHandler(int option)
+{
+    switch (option)
+    {
+    case 1:
+        Globals::light.adjustBrightness(0.5f, 0.5f);
+        break;
+    case 2:
+        Globals::light.adjustBrightness(-0.5f, -0.5f);
+        break;
+    case 3:
+        exit(0);
+        break;
+    default:
+        break;
+    }
+}
+
+void createMenu()
+{
+    glutCreateMenu(menuHandler);
+    glutAddMenuEntry("Aumentar Luminosidade", 1);
+    glutAddMenuEntry("Diminuir Luminosidade", 2);
+    glutAddMenuEntry("Sair", 3);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
