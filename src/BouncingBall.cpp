@@ -1,74 +1,61 @@
 #include "BouncingBall.h"
-#include "Physics.h"
 #include "Terrain.h"
+#include <iostream>
 
 BouncingBall::BouncingBall(float radius, float initialPosX, float initialPosY, float initialPosZ)
-    : radius(radius), posX(initialPosX), posY(initialPosY), posZ(initialPosZ), velocityX(0.0f), velocityY(0.0f), velocityZ(0.0f),
-      initialPosX(initialPosX), initialPosY(initialPosY), initialPosZ(initialPosZ)
+    : radius(radius), initialPosX(initialPosX), initialPosY(initialPosY), initialPosZ(initialPosZ),
+      physics(-9.8f, 0.8f, 0.0f, radius), quadric(nullptr, &gluDeleteQuadric), textureID(0)
 {
-    physics = new Physics(-9.8f, 0.8f, initialPosY, 0.8f);
+    physics.reset(initialPosX, initialPosY, initialPosZ);
 }
 
 BouncingBall::~BouncingBall()
 {
-    delete physics;
+    releaseGraphicsResources();
+}
+
+void BouncingBall::releaseGraphicsResources()
+{
+    if (textureID != 0) glDeleteTextures(1, &textureID);
+    textureID = 0;
+    quadric.reset();
 }
 
 void BouncingBall::draw() const
 {
+    glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_CURRENT_BIT | GL_LIGHTING_BIT);
     glPushMatrix();
-    glTranslatef(posX, posY, posZ);
+    glTranslatef(getPosX(), getPosY(), getPosZ());
     glColor3f(0.0f, 0.5f, 1.0f);
+    if (textureID != 0)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, textureID);
+    }
+    else glDisable(GL_TEXTURE_2D);
 
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    float ambientHead[4] = {0.2f, 0.2f, 0.2f, 1.0f};
-    float diffuseHead[4] = {0.8f, 0.8f, 0.8f, 1.0f};
-    float specularHead[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    setMaterial(ambientHead, diffuseHead, specularHead, 32.0f);
-
-    GLUquadric *quadric = gluNewQuadric();
-    gluQuadricTexture(quadric, GL_TRUE);
-    gluQuadricNormals(quadric, GLU_SMOOTH);
-
-    gluSphere(quadric, radius, 50, 50);
+    const float ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    const float diffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    const float specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    setMaterial(ambient, diffuse, specular, 32.0f);
+    if (quadric) gluSphere(quadric.get(), radius, 40, 32);
     glPopMatrix();
+    glPopAttrib();
 }
 
 void BouncingBall::update(float deltaTime, const Terrain &terrain)
 {
-    posX += velocityX * deltaTime;
-    posY += velocityY * deltaTime;
-    posZ += velocityZ * deltaTime;
-
-    physics->applyPhysics(deltaTime, terrain);
-    physics->setCharacterPosition(posX, posZ, terrain);
-    physics->handleCollision(deltaTime, terrain);
-    posY = physics->getCharacterY() + radius + 0.5f;
-
-    velocityX *= 0.95f;
-    velocityY *= 0.95f;
-    velocityZ *= 0.95f;
-
-    if (posY - radius <= terrain.getHeightAtPosition(posX, posZ))
-    {
-        physics->jump();
-    }
+    physics.update(deltaTime, terrain);
 }
 
 void BouncingBall::setVelocity(float vx, float vy, float vz)
 {
-    velocityX = vx;
-    velocityY = vy;
-    velocityZ = vz;
+    physics.setVelocity(vx, vy, vz);
 }
 
 void BouncingBall::setPosition(float x, float y, float z)
 {
-    posX = x;
-    posY = y;
-    posZ = z;
+    physics.reset(x, y, z);
 }
 
 void BouncingBall::setMaterial(const float ambient[4], const float diffuse[4], const float specular[4], float shininess) const
@@ -81,15 +68,16 @@ void BouncingBall::setMaterial(const float ambient[4], const float diffuse[4], c
 
 void BouncingBall::init()
 {
+    if (!quadric) quadric.reset(gluNewQuadric());
+    if (quadric)
+    {
+        gluQuadricTexture(quadric.get(), GL_TRUE);
+        gluQuadricNormals(quadric.get(), GLU_SMOOTH);
+    }
     loadTexture("src/bola.png", &textureID);
 }
 
 void BouncingBall::restartPosition()
 {
-    posX = initialPosX;
-    posY = initialPosY;
-    posZ = initialPosZ;
-    velocityX = 0.0f;
-    velocityY = 0.0f;
-    velocityZ = 0.0f;
+    physics.reset(initialPosX, initialPosY, initialPosZ);
 }

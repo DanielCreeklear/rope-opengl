@@ -1,34 +1,34 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
-#include <cmath>
-
 class Terrain;
 
+// Small deterministic point-mass model used by both the character and ball.
 class Physics
 {
 public:
-    Physics(float gravity, float damping, float groundY, float jumpForce)
-        : gravity(gravity), damping(damping), groundY(groundY), jumpForce(jumpForce),
-          velocityY(0.0f), isJumping(false), onGround(false), characterY(groundY) {}
+    Physics(float gravity, float damping, float jumpForce, float groundOffset = 0.0f);
 
-    void applyPhysics(float deltaTime, const Terrain &terrain);
-    void handleCollision(float deltaTime, const Terrain &terrain);
+    void reset(float x, float y, float z);
+    void setPosition(float x, float y, float z);
+    void setVelocity(float x, float y, float z);
+    void setHorizontalPosition(float x, float z);
     void update(float deltaTime, const Terrain &terrain);
     void jump();
 
-    float getCharacterY() const { return characterY; }
-    void setCharacterPosition(float x, float z, const Terrain &terrain);
+    float getX() const { return x; }
+    float getY() const { return y; }
+    float getZ() const { return z; }
+    float getVelocityX() const { return velocityX; }
+    float getVelocityY() const { return velocityY; }
+    float getVelocityZ() const { return velocityZ; }
+    bool isOnGround() const { return onGround; }
 
 private:
-    bool isJumping;
+    float x, y, z;
+    float velocityX, velocityY, velocityZ;
+    float gravity, damping, jumpForce, groundOffset;
     bool onGround;
-    float velocityY;
-    float gravity;
-    float damping;
-    float groundY;
-    float jumpForce;
-    float characterX, characterY, characterZ;
 };
 
 #endif

@@ -1,21 +1,25 @@
 #include <GL/glut.h>
 #include "Cylinder.h"
+#include <memory>
 
 void drawCylinder(float radius, float height, int slices, int stacks)
 {
-    GLUquadric *quadric = gluNewQuadric();
+    static std::unique_ptr<GLUquadric, decltype(&gluDeleteQuadric)> quadric(gluNewQuadric(), &gluDeleteQuadric);
+    if (!quadric) return;
+    gluQuadricNormals(quadric.get(), GLU_SMOOTH);
 
-    glColor3b(1.0f, 1.0f, 1.0f);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    gluQuadricOrientation(quadric.get(), GLU_INSIDE);
     glPushMatrix();
-    gluDisk(quadric, 0.0f, radius, slices, stacks);
+    gluDisk(quadric.get(), 0.0f, radius, slices, stacks);
     glPopMatrix();
 
-    gluCylinder(quadric, radius, radius, height, slices, stacks);
+    gluQuadricOrientation(quadric.get(), GLU_OUTSIDE);
+    gluCylinder(quadric.get(), radius, radius, height, slices, stacks);
 
     glPushMatrix();
     glTranslatef(0.0f, 0.0f, height);
-    gluDisk(quadric, 0.0f, radius, slices, stacks);
+    gluDisk(quadric.get(), 0.0f, radius, slices, stacks);
     glPopMatrix();
 
-    gluDeleteQuadric(quadric);
 }

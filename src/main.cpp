@@ -1,91 +1,69 @@
-#include <GL/glut.h>
-#include <GL/freeglut_ext.h>
-#include <cmath>
+#include <GL/freeglut.h>
+#include <algorithm>
 #include "Globals.h"
 #include "input.h"
 #include "Axes.h"
-#include "Terrain.h"
 
-float lastFrameTime = 0.0f;
-
-const float cameraOffsetX = 0.0f;
-const float cameraOffsetY = 10.0f;
-const float cameraOffsetZ = 30.0f;
-
-Terrain *createTerrain(float height)
+namespace
 {
-    float blockSize = 1.0f;
-    Terrain *terrain = new Terrain(blockSize, 20, 20, height + blockSize);
-    return terrain;
+constexpr float fixedStep = 1.0f / 120.0f;
+int previousTime = 0;
+float accumulator = 0.0f;
+
+void reshape(int width, int height)
+{
+    Globals::camera.reshape(width, height);
+}
+
+void closeWindow()
+{
+    Globals::character.releaseGraphicsResources();
+    Globals::ball.releaseGraphicsResources();
+}
 }
 
 void init()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
-
+    glEnable(GL_NORMALIZE);
+    glShadeModel(GL_SMOOTH);
     Globals::light.initialize();
-    Globals::camera.setup();
-
-    Globals::mainTerrain = createTerrain(0.0f);
+    Globals::camera.setup(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
     Globals::ball.init();
     Globals::character.init();
-    Globals::character.draw();
 }
 
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
     Globals::camera.applyViewTransform(Globals::character.getPosX(), Globals::character.getPosY(), Globals::character.getPosZ());
     Globals::light.applyLighting();
-
-    Globals::mainTerrain->draw();
+    Globals::mainTerrain.draw();
     drawAxes();
     Globals::character.draw();
     Globals::ball.draw();
     Globals::light.drawLightIndicator();
-
     glutSwapBuffers();
 }
 
-void update(int value)
+void update(int)
 {
-    float currentFrameTime = glutGet(GLUT_ELAPSED_TIME);
-
-    float deltaTime = (currentFrameTime - lastFrameTime) * 0.001f;
-
-    lastFrameTime = currentFrameTime;
-
-    Globals::character.update(deltaTime, *Globals::mainTerrain, Globals::ball);
-
-    if (Globals::isButtonPressed)
+    const int currentTime = glutGet(GLUT_ELAPSED_TIME);
+    float elapsed = static_cast<float>(currentTime - previousTime) * 0.001f;
+    previousTime = currentTime;
+    elapsed = std::min(elapsed, 0.1f); // avoid a large simulation jump after a pause
+    accumulator += elapsed;
+    while (accumulator >= fixedStep)
     {
-        GLdouble worldX, worldY, worldZ;
-        screenToWorld(Globals::x, Globals::y, worldX, worldY, worldZ);
-
-        float ballX = Globals::ball.getPosX();
-        float ballY = Globals::ball.getPosY();
-        float ballZ = Globals::ball.getPosZ();
-
-        float dx = worldX - ballX;
-        float dy = worldY - ballY;
-        float dz = worldZ - ballZ;
-
-        if (sqrt(dx * dx + dy * dy + dz * dz) < 1.0f)
-        {
-            Globals::ball.setPosition(worldX, worldY, worldZ);
-        }
+        Globals::character.update(fixedStep, Globals::mainTerrain, Globals::ball);
+        Globals::ball.update(fixedStep, Globals::mainTerrain);
+        accumulator -= fixedStep;
     }
-    else
-    {
-        Globals::ball.update(deltaTime, *Globals::mainTerrain);
-    }
-
     glutPostRedisplay();
-
-    glutTimerFunc(16, update, 0);
+    glutTimerFunc(8, update, 0);
 }
 
 int main(int argc, char **argv)
@@ -93,24 +71,23 @@ int main(int argc, char **argv)
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(800, 600);
-    glutCreateWindow("Rope OpenGL");
-
-    createMenu();
+    glutCreateWindow("Rope OpenGL - Character and Ball Demo");
+    glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+    glutCloseFunc(closeWindow);
 
     init();
-
+    createMenu();
     glutPassiveMotionFunc(mouseMotion);
+    glutMotionFunc(mouseMotion);
     glutMouseFunc(mouseButton);
     glutKeyboardFunc(keyboard);
-    glutSpecialFunc(keyboardSpecial);
     glutKeyboardUpFunc(keyboardUp);
-
-    glutMouseWheelFunc([](int button, int direction, int x, int y)
-                       { Globals::camera.mouseWheel(button, direction, x, y); });
-
+    glutSpecialFunc(keyboardSpecial);
+    glutMouseWheelFunc([](int, int direction, int, int) { Globals::camera.mouseWheel(0, direction, 0, 0); });
+    glutReshapeFunc(reshape);
     glutDisplayFunc(display);
-    glutTimerFunc(16, update, 0);
-
+    previousTime = glutGet(GLUT_ELAPSED_TIME);
+    glutTimerFunc(8, update, 0);
     glutMainLoop();
     return 0;
 }

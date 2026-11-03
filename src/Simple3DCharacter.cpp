@@ -9,25 +9,45 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <memory>
 
 Simple3DCharacter::Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth)
-    : scale(scale), torsoHeight(torsoHeight), headRadius(headRadius), limbLength(limbLength), limbWidth(limbWidth),
-      armLeftRotationAngle(0.0f), armRightRotationAngle(0.0f), legLeftRotationAngle(0.0f), legRightRotationAngle(0.0f),
-      torsoRotationAngle(0.0f), headRotationAngle(0.0f), directionRightArmRotation(1.0f), directionLeftArmRotation(-1.0f), directionLeftLegRotation(1.0f),
-      directionRightLegRotation(-1.0f), directionHeadRotation(1.0f), directionTorsoRotation(1.0f), isWalking(false),
-      moveForward(false), moveBackward(false), moveLeft(false), moveRight(false), posX(0.0f), posZ(0.0f), rotationAngleCharacter(0.0f),
-      enableIdle(true), celebration(false)
+    : rotationAngleCharacter(0.0f), armRightRotationAngle(0.0f), armLeftRotationAngle(0.0f),
+      directionRightArmRotation(1.0f), directionLeftArmRotation(-1.0f), directionTorsoRotation(1.0f),
+      legLeftRotationAngle(0.0f), legRightRotationAngle(0.0f), directionLeftLegRotation(1.0f),
+      directionRightLegRotation(-1.0f), torsoRotationAngle(0.0f), headRotationAngle(0.0f), directionHeadRotation(1.0f),
+      scale(scale), torsoHeight(torsoHeight), headRadius(headRadius), limbLength(limbLength), limbWidth(limbWidth),
+      physics(-16.8f, 0.8f, 10.0f, -1.0f), isWalking(false), enableIdle(true), celebration(false), ballContact(false),
+      textureIDTorso(0), textureIDHead(0), headQuadric(nullptr, &gluDeleteQuadric)
 {
-    animator = new Animator(this);
-    physics = new Physics(-16.8f, 0.8f, 0.0f, 10.0f);
-    movement = new Movement(10.0f);
-    posY = 10.0f;
+    animator = std::make_unique<Animator>(this);
+    movement = std::make_unique<Movement>(10.0f);
+    physics.reset(0.0f, 10.0f, 0.0f);
+}
+
+Simple3DCharacter::~Simple3DCharacter()
+{
+    releaseGraphicsResources();
+}
+
+void Simple3DCharacter::releaseGraphicsResources()
+{
+    const GLuint textures[] = {textureIDTorso, textureIDHead};
+    if (textureIDTorso != 0 || textureIDHead != 0) glDeleteTextures(2, textures);
+    textureIDTorso = textureIDHead = 0;
+    headQuadric.reset();
 }
 
 void Simple3DCharacter::init()
 {
     loadTexture("src/torso2.png", &textureIDTorso);
     loadTexture("src/head.png", &textureIDHead);
+    headQuadric.reset(gluNewQuadric());
+    if (headQuadric)
+    {
+        gluQuadricTexture(headQuadric.get(), GL_TRUE);
+        gluQuadricNormals(headQuadric.get(), GLU_SMOOTH);
+    }
 }
 
 void Simple3DCharacter::setMaterial(const float ambient[4], const float diffuse[4], const float specular[4], float shininess) const
@@ -54,14 +74,12 @@ void Simple3DCharacter::drawHead() const
 
     glPushMatrix();
     glRotatef(50.0f, 1.0f, 0.0f, 0.0f);
-    GLUquadric *quadric = gluNewQuadric();
-    gluQuadricTexture(quadric, GL_TRUE);
-    gluQuadricNormals(quadric, GLU_SMOOTH);
-
-    gluSphere(quadric, headRadius, 50, 50);
+    if (headQuadric)
+    {
+        gluSphere(headQuadric.get(), headRadius, 40, 32);
+    }
     glPopMatrix();
 
-    gluDeleteQuadric(quadric);
     glDisable(GL_TEXTURE_2D);
 
     glColor3f(1.0f, 0.0f, 0.0f);
@@ -118,10 +136,10 @@ void Simple3DCharacter::drawTorso() const
 
     const int faces[6][4] = {
         {4, 5, 6, 7},
-        {0, 1, 2, 3},
+        {3, 2, 1, 0},
         {0, 4, 7, 3},
-        {1, 5, 6, 2},
-        {3, 2, 6, 7},
+        {2, 6, 5, 1},
+        {7, 6, 2, 3},
         {0, 1, 5, 4}};
 
     const float normals[6][3] = {
@@ -297,11 +315,14 @@ void Simple3DCharacter::startWalking() { isWalking = true; }
 
 void Simple3DCharacter::stopWalking() { isWalking = false; }
 
-void Simple3DCharacter::jump() { physics->jump(); }
+void Simple3DCharacter::jump() { physics.jump(); }
 
 void Simple3DCharacter::move(float deltaTime)
 {
-    bool isMoving = movement->updatePosition(posX, posZ, deltaTime, rotationAngleCharacter);
+    float x = physics.getX();
+    float z = physics.getZ();
+    bool isMoving = movement->updatePosition(x, z, deltaTime, rotationAngleCharacter);
+    physics.setHorizontalPosition(x, z);
 
     if (isMoving)
     {
@@ -317,13 +338,15 @@ void Simple3DCharacter::setMoveForward(bool value) { movement->setMoveForward(va
 void Simple3DCharacter::setMoveBackward(bool value) { movement->setMoveBackward(value); }
 void Simple3DCharacter::setMoveLeft(bool value) { movement->setMoveLeft(value); }
 void Simple3DCharacter::setMoveRight(bool value) { movement->setMoveRight(value); }
+bool Simple3DCharacter::hasMovementInput() const { return movement->isMoving(); }
 
 void Simple3DCharacter::draw() const
 {
     const float heightZero = limbLength / 2.0f + torsoHeight / 2.0f;
+    glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_TEXTURE_BIT | GL_LIGHTING_BIT);
     glPushMatrix();
 
-    glTranslatef(posX, posY + heightZero + limbLength, posZ);
+    glTranslatef(physics.getX(), physics.getY() + heightZero + limbLength, physics.getZ());
     glRotatef(rotationAngleCharacter, 0.0f, 1.0f, 0.0f);
     drawTorso();
     drawHead();
@@ -331,20 +354,19 @@ void Simple3DCharacter::draw() const
     drawAdditionalComponents();
 
     glPopMatrix();
+    glPopAttrib();
 }
 
 void Simple3DCharacter::update(float deltaTime, const Terrain &terrain, BouncingBall &ball)
 {
-    physics->setCharacterPosition(posX, posZ, terrain);
-    physics->applyPhysics(deltaTime, terrain);
-    physics->handleCollision(deltaTime, terrain);
-    posY = physics->getCharacterY();
-    physics->update(deltaTime, terrain);
+    physics.update(deltaTime, terrain);
 
-    if (checkCollisionWithBall(ball))
+    const bool touchingBall = checkCollisionWithBall(ball);
+    if (touchingBall && !ballContact)
     {
         kickBall(ball);
     }
+    ballContact = touchingBall;
 
     if (celebration)
     {
@@ -366,19 +388,19 @@ void Simple3DCharacter::update(float deltaTime, const Terrain &terrain, Bouncing
     }
 }
 
-float Simple3DCharacter::getPosX()
+float Simple3DCharacter::getPosX() const
 {
-    return posX;
+    return physics.getX();
 }
 
-float Simple3DCharacter::getPosY()
+float Simple3DCharacter::getPosY() const
 {
-    return posY;
+    return physics.getY();
 }
 
-float Simple3DCharacter::getPosZ()
+float Simple3DCharacter::getPosZ() const
 {
-    return posZ;
+    return physics.getZ();
 }
 
 float Simple3DCharacter::getFootHeight() const
@@ -445,44 +467,45 @@ void Simple3DCharacter::resetCharacter()
     directionHeadRotation = 1.0f;
     directionTorsoRotation = 1.0f;
     isWalking = false;
-    moveForward = false;
-    moveBackward = false;
-    moveLeft = false;
-    moveRight = false;
-    posX = 0.0f;
-    posZ = 0.0f;
+    movement->setMoveForward(false);
+    movement->setMoveBackward(false);
+    movement->setMoveLeft(false);
+    movement->setMoveRight(false);
+    physics.reset(0.0f, 10.0f, 0.0f);
     rotationAngleCharacter = 0.0f;
     enableIdle = true;
     celebration = false;
-    posY = 10.0f;
+    ballContact = false;
 }
 
 void Simple3DCharacter::kickBall(BouncingBall &ball)
 {
     float kickForce = 20.0f;
     float kickAngle = rotationAngleCharacter + 90.0f;
-    std::cout << "Angulo: " << kickAngle << std::endl;
 
-    float directionX = cos(kickAngle * M_PI / 180.0f);
-    float directionZ = sin(kickAngle * M_PI / 180.0f);
+    constexpr float pi = 3.14159265358979323846f;
+    float directionX = cos(kickAngle * pi / 180.0f);
+    float directionZ = sin(kickAngle * pi / 180.0f);
 
     ball.setVelocity(kickForce * directionX, 5.0f, kickForce * directionZ);
 }
 
 bool Simple3DCharacter::checkCollisionWithBall(BouncingBall &ball)
 {
-    float deltaX = posX - ball.getPosX();
-    float deltaZ = posZ - ball.getPosZ();
-    float distance = sqrt(deltaX * deltaX + deltaZ * deltaZ);
-
-    return distance <= (ball.getRadius() + calculateRadius());
+    // Approximate the character by a vertical capsule and test the sphere
+    // against its axis segment, including vertical separation.
+    const float characterRadius = std::max(0.45f, limbWidth * 1.5f);
+    const float segmentBottom = physics.getY() + 0.25f;
+    const float segmentTop = physics.getY() + torsoHeight + limbLength;
+    const float closestY = std::max(segmentBottom, std::min(ball.getPosY(), segmentTop));
+    const float dx = physics.getX() - ball.getPosX();
+    const float dy = closestY - ball.getPosY();
+    const float dz = physics.getZ() - ball.getPosZ();
+    const float combinedRadius = ball.getRadius() + characterRadius;
+    return dx * dx + dy * dy + dz * dz <= combinedRadius * combinedRadius;
 }
 
 float Simple3DCharacter::calculateRadius() const
 {
-    float radius = headRadius;
-    radius = std::max(radius, limbLength + limbWidth);
-    radius = std::max(radius, limbLength + limbWidth);
-
-    return radius;
+    return std::max(headRadius, limbWidth * 1.5f);
 }

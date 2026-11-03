@@ -1,77 +1,120 @@
+#include <GL/freeglut.h>
 #include "input.h"
 #include "Globals.h"
+#include <cmath>
+#include <cstdlib>
 #include <iostream>
 
-const float BALL_DETECTION_RADIUS = 50.0f;
+namespace
+{
+bool draggingBall = false;
+double dragPlaneY = 0.0;
+double dragOffsetX = 0.0;
+double dragOffsetZ = 0.0;
 
-void screenToWorld(int mouseX, int mouseY, GLdouble &worldX, GLdouble &worldY, GLdouble &worldZ)
+bool rayForPixel(int mouseX, int mouseY, GLdouble &nearX, GLdouble &nearY, GLdouble &nearZ,
+                 GLdouble &dirX, GLdouble &dirY, GLdouble &dirZ)
 {
     int viewport[4];
-    double modelview[16];
-    double projection[16];
-
+    double modelview[16], projection[16];
     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
     glGetIntegerv(GL_VIEWPORT, viewport);
-
-    float winX = (float)mouseX;
-    float winY = (float)(viewport[3] - mouseY);
-
-    float fixedPlaneY = Globals::ball.getPosY();
-
-    GLdouble nearX, nearY, nearZ;
+    const double winX = static_cast<double>(mouseX);
+    const double winY = static_cast<double>(viewport[3] - mouseY);
     GLdouble farX, farY, farZ;
+    if (gluUnProject(winX, winY, 0.0, modelview, projection, viewport, &nearX, &nearY, &nearZ) != GLU_TRUE ||
+        gluUnProject(winX, winY, 1.0, modelview, projection, viewport, &farX, &farY, &farZ) != GLU_TRUE)
+        return false;
+    dirX = farX - nearX; dirY = farY - nearY; dirZ = farZ - nearZ;
+    return dirX * dirX + dirY * dirY + dirZ * dirZ > 1e-12;
+}
 
-    gluUnProject(winX, winY, 0.0, modelview, projection, viewport, &nearX, &nearY, &nearZ);
-    gluUnProject(winX, winY, 1.0, modelview, projection, viewport, &farX, &farY, &farZ);
+bool rayPlaneY(int mouseX, int mouseY, double planeY, double &worldX, double &worldZ)
+{
+    GLdouble nearX, nearY, nearZ, dirX, dirY, dirZ;
+    if (!rayForPixel(mouseX, mouseY, nearX, nearY, nearZ, dirX, dirY, dirZ) || std::abs(dirY) < 1e-9)
+        return false;
+    const double t = (planeY - nearY) / dirY;
+    if (t < 0.0) return false;
+    worldX = nearX + t * dirX;
+    worldZ = nearZ + t * dirZ;
+    return true;
+}
 
-    double dirX = farX - nearX;
-    double dirY = farY - nearY;
-    double dirZ = farZ - nearZ;
+void shutdownApplication()
+{
+    Globals::character.releaseGraphicsResources();
+    Globals::ball.releaseGraphicsResources();
+    glutLeaveMainLoop();
+}
+}
 
-    double length = sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ);
-    dirX /= length;
-    dirY /= length;
-    dirZ /= length;
+bool screenToWorld(int mouseX, int mouseY, GLdouble &worldX, GLdouble &worldY, GLdouble &worldZ)
+{
+    GLdouble nearX, nearY, nearZ, dirX, dirY, dirZ;
+    if (!rayForPixel(mouseX, mouseY, nearX, nearY, nearZ, dirX, dirY, dirZ)) return false;
 
-    if (dirY != 0.0)
-    {
-        double t = (fixedPlaneY - nearY) / dirY;
-        worldX = nearX + t * dirX;
-        worldY = fixedPlaneY;
-        worldZ = nearZ + t * dirZ;
-    }
-    else
-    {
-        worldX = nearX;
-        worldY = fixedPlaneY;
-        worldZ = nearZ;
-    }
+    const double cx = Globals::ball.getPosX();
+    const double cy = Globals::ball.getPosY();
+    const double cz = Globals::ball.getPosZ();
+    const double radius = Globals::ball.getRadius();
+    const double a = dirX * dirX + dirY * dirY + dirZ * dirZ;
+    const double ox = nearX - cx, oy = nearY - cy, oz = nearZ - cz;
+    const double b = 2.0 * (ox * dirX + oy * dirY + oz * dirZ);
+    const double c = ox * ox + oy * oy + oz * oz - radius * radius;
+    const double discriminant = b * b - 4.0 * a * c;
+    if (a <= 1e-12 || discriminant < 0.0) return false;
+    double t = (-b - std::sqrt(discriminant)) / (2.0 * a);
+    if (t < 0.0) t = (-b + std::sqrt(discriminant)) / (2.0 * a);
+    if (t < 0.0) return false;
+    worldX = nearX + t * dirX;
+    worldY = nearY + t * dirY;
+    worldZ = nearZ + t * dirZ;
+    return true;
 }
 
 void mouseMotion(int x, int y)
 {
-    Globals::x = x;
-    Globals::y = y;
+    if (draggingBall)
+    {
+        double worldX, worldZ;
+        if (rayPlaneY(x, y, dragPlaneY, worldX, worldZ))
+            Globals::ball.setPosition(static_cast<float>(worldX + dragOffsetX), static_cast<float>(dragPlaneY), static_cast<float>(worldZ + dragOffsetZ));
+    }
     Globals::camera.mouseMotion(x, y);
 }
 
 void mouseButton(int button, int state, int x, int y)
 {
-    if (button == 1)
+    if (button == GLUT_LEFT_BUTTON)
     {
         if (state == GLUT_DOWN)
         {
-            Globals::isButtonPressed = !Globals::isButtonPressed;
+            GLdouble hitX, hitY, hitZ;
+            draggingBall = screenToWorld(x, y, hitX, hitY, hitZ);
+            if (draggingBall)
+            {
+                const double centerX = Globals::ball.getPosX();
+                dragPlaneY = Globals::ball.getPosY();
+                const double centerZ = Globals::ball.getPosZ();
+                double planeX, planeZ;
+                if (!rayPlaneY(x, y, dragPlaneY, planeX, planeZ)) draggingBall = false;
+                else
+                {
+                    dragOffsetX = centerX - planeX;
+                    dragOffsetZ = centerZ - planeZ;
+                    Globals::ball.setVelocity(0.0f, 0.0f, 0.0f);
+                }
+            }
         }
+        else draggingBall = false;
     }
 
-    Globals::x = x;
-    Globals::y = y;
     Globals::camera.mouseButton(button, state, x, y);
 }
 
-void keyboardSpecial(int key, int x, int y)
+void keyboardSpecial(int key, int, int)
 {
     const float lightMoveSpeed = 0.5f;
     switch (key)
@@ -94,22 +137,26 @@ void keyboardSpecial(int key, int x, int y)
     glutPostRedisplay();
 }
 
-void keyboard(unsigned char key, int x, int y)
+void keyboard(unsigned char key, int, int)
 {
     const float moveSpeed = 1.0f;
 
     switch (key)
     {
     case 'w':
+        Globals::character.setIdle(false);
         Globals::character.setMoveForward(true);
         break;
     case 's':
+        Globals::character.setIdle(false);
         Globals::character.setMoveBackward(true);
         break;
     case 'a':
+        Globals::character.setIdle(false);
         Globals::character.setMoveLeft(true);
         break;
     case 'd':
+        Globals::character.setIdle(false);
         Globals::character.setMoveRight(true);
         break;
     case ' ':
@@ -139,39 +186,35 @@ void keyboard(unsigned char key, int x, int y)
         Globals::light.adjustBrightness(-0.5f, -0.5f);
         break;
     case 27:
-        exit(0);
+        shutdownApplication();
         break;
     default:
         break;
     }
 }
 
-void keyboardUp(unsigned char key, int x, int y)
+void keyboardUp(unsigned char key, int, int)
 {
     switch (key)
     {
     case 'w':
         Globals::character.setMoveForward(false);
-        Globals::character.setIdle(true);
         break;
     case 's':
         Globals::character.setMoveBackward(false);
-        Globals::character.setIdle(true);
         break;
     case 'a':
         Globals::character.setMoveLeft(false);
-        Globals::character.setIdle(true);
         break;
     case 'd':
         Globals::character.setMoveRight(false);
-        Globals::character.setIdle(true);
         break;
     case ' ':
-        Globals::character.setIdle(true);
         break;
     default:
         break;
     }
+    Globals::character.setIdle(!Globals::character.hasMovementInput());
 }
 
 void menuHandler(int option)
@@ -195,7 +238,7 @@ void menuHandler(int option)
         Globals::ball.restartPosition();
         break;
     case 6:
-        exit(0);
+        shutdownApplication();
         break;
     default:
         break;
