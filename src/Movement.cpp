@@ -1,28 +1,19 @@
 #include "Movement.h"
+#include <cmath>
 
 bool Movement::updatePosition(float &posX, float &posZ, float deltaTime, float &rotationAngle)
 {
-    const bool isMoving = moveForward || moveBackward || moveLeft || moveRight;
-
-    if (moveForward)
+    float dx = static_cast<float>(moveRight) - static_cast<float>(moveLeft);
+    float dz = static_cast<float>(moveBackward) - static_cast<float>(moveForward);
+    const float length = std::sqrt(dx * dx + dz * dz);
+    const bool isMoving = length > 0.0f;
+    if (isMoving)
     {
-        posZ -= speed * deltaTime;
-        rotationAngle = 0.0f;
-    }
-    if (moveBackward)
-    {
-        posZ += speed * deltaTime;
-        rotationAngle = 180.0f;
-    }
-    if (moveLeft)
-    {
-        posX -= speed * deltaTime;
-        rotationAngle = 90.0f;
-    }
-    if (moveRight)
-    {
-        posX += speed * deltaTime;
-        rotationAngle = -90.0f;
+        dx /= length;
+        dz /= length;
+        posX += dx * speed * deltaTime;
+        posZ += dz * speed * deltaTime;
+        rotationAngle = std::atan2(-dx, -dz) * 180.0f / 3.14159265358979323846f;
     }
 
     return isMoving;

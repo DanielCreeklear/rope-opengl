@@ -13,9 +13,7 @@ namespace Globals
     extern Light light;
     extern Simple3DCharacter character;
     extern BouncingBall ball;
-    extern Terrain *mainTerrain;
-    extern bool isButtonPressed;
-    extern int x, y;
+    extern Terrain mainTerrain;
 }
 
 #endif

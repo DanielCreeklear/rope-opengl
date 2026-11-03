@@ -2,13 +2,22 @@
 #include <iostream>
 
 Camera::Camera()
-    : cameraOffsetX(0.0f), cameraOffsetY(10.0f), cameraOffsetZ(30.0f), mouseRotation(false) {}
+    : posX(0.0f), posY(0.0f), posZ(0.0f), yaw(0.0f), pitch(0.25f), sensitivity(0.01f), mouseRotation(false),
+      cameraOffsetX(0.0f), cameraOffsetY(10.0f), cameraOffsetZ(30.0f), viewportWidth(800), viewportHeight(600) {}
 
-void Camera::setup()
+void Camera::setup(int width, int height)
 {
+    reshape(width, height);
+}
+
+void Camera::reshape(int width, int height)
+{
+    viewportWidth = width > 0 ? width : 1;
+    viewportHeight = height > 0 ? height : 1;
+    glViewport(0, 0, viewportWidth, viewportHeight);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0f, 1.0f, 0.1f, 100.0f);
+    gluPerspective(45.0f, static_cast<float>(viewportWidth) / viewportHeight, 0.1f, 250.0f);
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -31,7 +40,6 @@ void Camera::applyViewTransform(float characterX, float characterY, float charac
 
 void Camera::mouseMotion(int x, int y)
 {
-    sensitivity = 0.01f;
     if (mouseRotation)
     {
         int centerX = glutGet(GLUT_WINDOW_WIDTH) / 2;
@@ -52,15 +60,15 @@ void Camera::mouseMotion(int x, int y)
     }
 }
 
-void Camera::mouseButton(int button, int state, int x, int y)
+void Camera::mouseButton(int button, int state, int, int)
 {
-    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    if (button == GLUT_MIDDLE_BUTTON)
     {
-        mouseRotation = !mouseRotation;
+        mouseRotation = (state == GLUT_DOWN);
     }
 }
 
-void Camera::mouseWheel(int button, int direction, int x, int y)
+void Camera::mouseWheel(int, int direction, int, int)
 {
     if (direction > 0)
         cameraOffsetZ -= 1.0f;

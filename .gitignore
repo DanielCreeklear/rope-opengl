@@ -29,3 +29,7 @@
 *.exe
 *.out
 *.app
+
+# CMake output
+build*/
+CMakeUserPresets.json

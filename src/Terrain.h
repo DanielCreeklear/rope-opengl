@@ -10,6 +10,7 @@ public:
     Terrain(float blockSize, int width, int depth, float height);
     void draw() const;
     void setHeight(float height);
+    // Returns the upper surface of the selected terrain block in world space.
     float getHeightAtPosition(float x, float z) const;
     bool isWithinTerrain(float x, float z) const;
 

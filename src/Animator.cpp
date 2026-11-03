@@ -7,18 +7,20 @@ Animator::Animator(Simple3DCharacter *character)
 
 void Animator::rotateWithLimits(float &angle, float speed, float &direction, float minAngle, float maxAngle, float deltaTime)
 {
-    if (angle > maxAngle)
-    {
-        angle = maxAngle;
-        direction = -1.0f;
-    }
-    else if (angle < minAngle)
-    {
-        angle = minAngle;
-        direction = 1.0f;
-    }
-
     angle += speed * direction * deltaTime;
+    while (angle > maxAngle || angle < minAngle)
+    {
+        if (angle > maxAngle)
+        {
+            angle = maxAngle - (angle - maxAngle);
+            direction = -1.0f;
+        }
+        if (angle < minAngle)
+        {
+            angle = minAngle + (minAngle - angle);
+            direction = 1.0f;
+        }
+    }
 }
 
 void Animator::celebrationAnimation(float deltaTime)

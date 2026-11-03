@@ -1,12 +1,13 @@
 #include "Block.h"
 
 Block::Block(float x, float y, float z, float size)
-    : x(x), y(y), z(z), size(size) {}
+    : x(x), y(y), z(z), size(size), color{1.0f, 1.0f, 1.0f} {}
 
 void Block::draw() const
 {
     glPushMatrix();
     glTranslatef(x, y, z);
+    glPushAttrib(GL_CURRENT_BIT | GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
 
     GLfloat materialAmbient[] = {color[0] * 0.3f, color[1] * 0.3f, color[2] * 0.3f, 1.0f};
     GLfloat materialDiffuse[] = {color[0], color[1], color[2], 1.0f};
@@ -27,10 +28,10 @@ void Block::draw() const
     glVertex3f(-size / 2, size / 2, size / 2);
 
     glNormal3f(0.0f, 0.0f, -1.0f);
-    glVertex3f(-size / 2, -size / 2, -size / 2);
-    glVertex3f(size / 2, -size / 2, -size / 2);
-    glVertex3f(size / 2, size / 2, -size / 2);
     glVertex3f(-size / 2, size / 2, -size / 2);
+    glVertex3f(size / 2, size / 2, -size / 2);
+    glVertex3f(size / 2, -size / 2, -size / 2);
+    glVertex3f(-size / 2, -size / 2, -size / 2);
 
     glNormal3f(-1.0f, 0.0f, 0.0f);
     glVertex3f(-size / 2, -size / 2, -size / 2);
@@ -39,10 +40,10 @@ void Block::draw() const
     glVertex3f(-size / 2, size / 2, -size / 2);
 
     glNormal3f(1.0f, 0.0f, 0.0f);
-    glVertex3f(size / 2, -size / 2, -size / 2);
-    glVertex3f(size / 2, -size / 2, size / 2);
-    glVertex3f(size / 2, size / 2, size / 2);
     glVertex3f(size / 2, size / 2, -size / 2);
+    glVertex3f(size / 2, size / 2, size / 2);
+    glVertex3f(size / 2, -size / 2, size / 2);
+    glVertex3f(size / 2, -size / 2, -size / 2);
 
     glNormal3f(0.0f, 1.0f, 0.0f);
     glVertex3f(-size / 2, size / 2, size / 2);
@@ -57,6 +58,7 @@ void Block::draw() const
     glVertex3f(-size / 2, -size / 2, -size / 2);
 
     glEnd();
+    glPopAttrib();
     glPopMatrix();
 }
 

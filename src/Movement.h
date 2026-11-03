@@ -11,6 +11,7 @@ public:
     void setMoveBackward(bool value) { moveBackward = value; }
     void setMoveLeft(bool value) { moveLeft = value; }
     void setMoveRight(bool value) { moveRight = value; }
+    bool isMoving() const { return moveForward || moveBackward || moveLeft || moveRight; }
 
     bool updatePosition(float &posX, float &posZ, float deltaTime, float &rotationAngle);
 

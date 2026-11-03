@@ -1,18 +1,21 @@
 #include "Terrain.h"
+#include <cmath>
 
 Terrain::Terrain(float blockSize, int width, int depth, float height)
-    : blockSize(blockSize), width(width), depth(depth), groundHeight(height)
+    : blockSize(blockSize), groundHeight(height), width(width), depth(depth)
 {
     generateTerrain();
 }
 
 void Terrain::generateTerrain()
 {
+    blocks.clear();
+    blocks.reserve(static_cast<std::size_t>(width * depth));
     for (int x = 0; x < width; ++x)
     {
         for (int z = 0; z < depth; ++z)
         {
-            Block block(x * blockSize, groundHeight, z * blockSize, blockSize);
+            Block block((x + 0.5f) * blockSize, groundHeight, (z + 0.5f) * blockSize, blockSize);
 
             if ((x + z) % 2 == 0)
             {
@@ -30,14 +33,14 @@ void Terrain::generateTerrain()
 
 float Terrain::getHeightAtPosition(float x, float z) const
 {
-    int blockX = static_cast<int>(x / blockSize);
-    int blockZ = static_cast<int>(z / blockSize);
+    const int blockX = static_cast<int>(std::floor(x / blockSize));
+    const int blockZ = static_cast<int>(std::floor(z / blockSize));
 
     if (blockX >= 0 && blockX < width && blockZ >= 0 && blockZ < depth)
     {
-        return blocks[blockX + blockZ * width].getY();
+        return blocks[blockX * depth + blockZ].getY() + blockSize * 0.5f;
     }
-    return groundHeight;
+    return groundHeight + blockSize * 0.5f;
 }
 
 void Terrain::draw() const
@@ -51,9 +54,10 @@ void Terrain::draw() const
 void Terrain::setHeight(float height)
 {
     groundHeight = height;
+    generateTerrain();
 }
 
 bool Terrain::isWithinTerrain(float x, float z) const
 {
-    return (x >= 0 && x < width) && (z >= 0 && z < depth);
+    return x >= 0.0f && x < width * blockSize && z >= 0.0f && z < depth * blockSize;
 }

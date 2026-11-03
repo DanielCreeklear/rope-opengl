@@ -1,4 +1,5 @@
 #include "Light.h"
+#include <algorithm>
 
 Light::Light()
 {
@@ -42,14 +43,14 @@ void Light::adjustBrightness(float ambientFactor, float diffuseFactor)
 {
     for (int i = 0; i < 3; ++i)
     {
-        ambientLight[i] += ambientFactor;
-        diffuseLight[i] += diffuseFactor;
+        ambientLight[i] = std::max(0.0f, std::min(1.0f, ambientLight[i] + ambientFactor));
+        diffuseLight[i] = std::max(0.0f, std::min(1.0f, diffuseLight[i] + diffuseFactor));
     }
 }
 
 void Light::drawLightIndicator()
 {
-    glPushAttrib(GL_LIGHTING_BIT);
+    glPushAttrib(GL_LIGHTING_BIT | GL_CURRENT_BIT);
     glDisable(GL_LIGHTING);
 
     glColor3f(1.0f, 1.0f, 0.0f);

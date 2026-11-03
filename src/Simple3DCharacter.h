@@ -3,10 +3,11 @@
 
 #include <GL/glut.h>
 #include <cmath>
+#include <memory>
 #include "Texture.h"
+#include "Physics.h"
 
 class Animator;
-class Physics;
 class Movement;
 class Terrain;
 class BouncingBall;
@@ -14,8 +15,6 @@ class BouncingBall;
 class Simple3DCharacter
 {
 public:
-    bool moveForward, moveBackward, moveLeft, moveRight;
-
     float rotationAngleCharacter;
     float armRightRotationAngle;
     float armLeftRotationAngle;
@@ -33,6 +32,9 @@ public:
     float directionHeadRotation;
 
     Simple3DCharacter(float scale, float torsoHeight, float headRadius, float limbLength, float limbWidth);
+    ~Simple3DCharacter();
+    Simple3DCharacter(const Simple3DCharacter &) = delete;
+    Simple3DCharacter &operator=(const Simple3DCharacter &) = delete;
     void draw() const;
     void update(float deltaTime, const Terrain &terrain, BouncingBall &ball);
 
@@ -41,15 +43,16 @@ public:
     void move(float deltaTime);
     void jump();
 
-    float getPosX();
-    float getPosY();
-    float getPosZ();
+    float getPosX() const;
+    float getPosY() const;
+    float getPosZ() const;
     float getFootHeight() const;
 
     void setMoveForward(bool value);
     void setMoveBackward(bool value);
     void setMoveLeft(bool value);
     void setMoveRight(bool value);
+    bool hasMovementInput() const;
 
     void increaseAngleLeftArm(float angle);
     void increaseAngleRightArm(float angle);
@@ -65,6 +68,7 @@ public:
     float calculateRadius() const;
 
     void init();
+    void releaseGraphicsResources();
 
 private:
     float scale;
@@ -74,18 +78,17 @@ private:
     float limbLength;
     float limbWidth;
 
-    float posX, posY, posZ;
+    Physics physics;
 
     bool isWalking, enableIdle, celebration;
+    bool ballContact;
 
-    Animator *animator;
-    Physics *physics;
-    Movement *movement;
+    std::unique_ptr<Animator> animator;
+    std::unique_ptr<Movement> movement;
 
     GLuint textureIDTorso;
     GLuint textureIDHead;
-    GLuint textureIDLimb;
-    GLuint textureIds[3];
+    std::unique_ptr<GLUquadric, decltype(&gluDeleteQuadric)> headQuadric;
 
     void drawLeftArm() const;
     void drawRightArm() const;

@@ -8,7 +8,8 @@ class Camera
 {
 public:
     Camera();
-    void setup();
+    void setup(int width = 800, int height = 600);
+    void reshape(int width, int height);
     void applyViewTransform(float characterX, float characterY, float characterZ);
 
     void mouseMotion(int x, int y);
@@ -22,6 +23,7 @@ private:
     bool mouseRotation;
 
     float cameraOffsetX, cameraOffsetY, cameraOffsetZ;
+    int viewportWidth, viewportHeight;
 };
 
 #endif
